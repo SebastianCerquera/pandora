@@ -6,43 +6,30 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
 import java.security.Key;
+import java.security.SecureRandom;
+import java.security.spec.KeySpec;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.slf4j.Logger;
 
 public class AESUtils {
 
-	// it won't work with a key larger than 32 bits
-	static int keyLength = 32;
-
-	static SecretKey key = null;
-
 	private static final String ALGO = "AES/ECB/PKCS5Padding";
 
-	public static byte[] padKey(byte[] key) {
-		byte[] padded = new byte[keyLength];
-
-		for (int i = 0; i < key.length; i++)
-			padded[i] = key[i];
-
-		for (int i = key.length; i < keyLength; i++)
-			padded[i] = 0;
-
-		return padded;
-	}
-
-	public static byte[] encrypt(byte[] decrypted, byte[] rawKey) throws Exception {
-		Key key = generateKey(padKey(rawKey));
+	public static byte[] encrypt(byte[] decrypted, String password) throws Exception {
+		Key key = generateKey(password);
 		Cipher c = Cipher.getInstance(ALGO);
 		c.init(Cipher.ENCRYPT_MODE, key);
 		return c.doFinal(decrypted);
 	}
 
-	public static byte[] decrypt(byte[] encrypted, byte[] rawKey) throws Exception {
-		Key key = generateKey(padKey(rawKey));
+	public static byte[] decrypt(byte[] encrypted, String password) throws Exception {
+		Key key = generateKey(password);
 		Cipher c = Cipher.getInstance(ALGO);
 		c.init(Cipher.DECRYPT_MODE, key);
 		return c.doFinal(encrypted);
@@ -61,7 +48,7 @@ public class AESUtils {
 
 		byte[] encrypted;
 		try {
-			encrypted = encrypt(out.toByteArray(), key.getBytes("UTF-8"));
+			encrypted = encrypt(out.toByteArray(), key);
 		} catch (UnsupportedEncodingException e) {
 			log.error("this shouldn't happen, the charset should exists");
 			return;
@@ -86,7 +73,7 @@ public class AESUtils {
 
 		byte[] decrypted;
 		try {
-			decrypted = decrypt(out.toByteArray(), key.getBytes("UTF-8"));
+			decrypted = decrypt(out.toByteArray(), key);
 		} catch (UnsupportedEncodingException e) {
 			log.error("this shouldn't happen, the charset should exists");
 			return;
@@ -96,29 +83,28 @@ public class AESUtils {
 		}
 
 		FileUtils.writeFile(target, decrypted, log);
-
 	}
 
-	private static Key generateKey(byte[] key) throws Exception {
-		/*
-		 * The prperty is set to unlimited and the maxKeyLen is 2147483647 yet i can
-		 * only use keys up to 32 bits.
-		 * 
-		 * System.out.println(Security.getProperty("crypto.policy"));
-		 * 
-		 * int maxKeyLen = Cipher.getMaxAllowedKeyLength("AES");
-		 * System.out.println(maxKeyLen);
-		 */
+	private static byte[] salt = null;
 
-		/*
-		 * Even the KeyGenerator fails to generate a 128 bit key.
-		 * 
-		 * KeyGenerator gen = KeyGenerator.getInstance(ALGO);
-		 * gen.init(128);
-		 * SecretKey keySpec = gen.generateKey();
-		 */
+	private static byte[] getSalt() {
+		if (salt == null) {
+			SecureRandom random = new SecureRandom();
+			salt = new byte[16];
+			random.nextBytes(salt);
+		}
+		return salt;
+	}
 
-		SecretKeySpec keySpec = new SecretKeySpec(key, "AES");
-		return keySpec;
+	/*
+	 * it works but it keeps creating 16bit keys
+	 * 
+	 * i can use a password longer than 16 bit it will generate the key anyways.
+	 */
+	private static Key generateKey(String password) throws Exception {
+		SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+		KeySpec spec = new PBEKeySpec(password.toCharArray(), getSalt(), 65536, 256);
+		SecretKey tmp = factory.generateSecret(spec);
+		return new SecretKeySpec(tmp.getEncoded(), "AES");
 	}
 }
