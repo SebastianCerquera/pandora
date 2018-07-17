@@ -66,7 +66,7 @@ public class AESUtils {
 			log.error("this shouldn't happen, the charset should exists");
 			return;
 		} catch (Exception e) {
-			log.error("how can getBytes fail?");
+			log.error("it failed during the encryption");
 			return;
 		}
 
