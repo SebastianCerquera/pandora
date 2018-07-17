@@ -3,86 +3,65 @@ package hello;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.UnsupportedEncodingException;
+import java.io.IOException;
+import java.security.InvalidKeyException;
 import java.security.Key;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
 
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.slf4j.Logger;
-
 public class AESUtils {
 
+	private static final String KEY_ALGO = "AES";
+	
 	private static final String ALGO = "AES/ECB/PKCS5Padding";
+	
+	private static final String SECRET_ALGO = "PBKDF2WithHmacSHA1";
 
-	public static byte[] encrypt(byte[] decrypted, String password) throws Exception {
+	public static byte[] encrypt(byte[] decrypted, String password)
+			throws NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, InvalidKeyException,
+			IllegalBlockSizeException, BadPaddingException {
 		Key key = generateKey(password);
 		Cipher c = Cipher.getInstance(ALGO);
 		c.init(Cipher.ENCRYPT_MODE, key);
 		return c.doFinal(decrypted);
 	}
 
-	public static byte[] decrypt(byte[] encrypted, String password) throws Exception {
+	public static byte[] decrypt(byte[] encrypted, String password)
+			throws NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, InvalidKeyException,
+			IllegalBlockSizeException, BadPaddingException {
 		Key key = generateKey(password);
 		Cipher c = Cipher.getInstance(ALGO);
 		c.init(Cipher.DECRYPT_MODE, key);
 		return c.doFinal(encrypted);
 	}
 
-	public static void encryptFile(String source, String target, String key, Logger log) {
-		FileInputStream in;
-		try {
-			in = new FileInputStream(new File(source));
-		} catch (FileNotFoundException e) {
-			log.error("The source file should exists");
-			return;
-		}
-
-		ByteArrayOutputStream out = (ByteArrayOutputStream) FileUtils.readFile(new ByteArrayOutputStream(), in, log);
-
-		byte[] encrypted;
-		try {
-			encrypted = encrypt(out.toByteArray(), key);
-		} catch (UnsupportedEncodingException e) {
-			log.error("this shouldn't happen, the charset should exists");
-			return;
-		} catch (Exception e) {
-			log.error("it failed during the encryption");
-			return;
-		}
-
-		FileUtils.writeFile(target, encrypted, log);
+	public static void encryptFile(String source, String target, String key)
+			throws InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException,
+			NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, IOException {
+		FileInputStream in = new FileInputStream(new File(source));
+		ByteArrayOutputStream out = (ByteArrayOutputStream) FileUtils.readFile(new ByteArrayOutputStream(), in);
+		byte[] encrypted = encrypt(out.toByteArray(), key);
+		FileUtils.writeFile(target, encrypted);
 	}
 
-	public static void decryptFile(String source, String target, String key, Logger log) {
-		FileInputStream in;
-		try {
-			in = new FileInputStream(new File(source));
-		} catch (FileNotFoundException e) {
-			log.error("The source file should exists");
-			return;
-		}
-
-		ByteArrayOutputStream out = (ByteArrayOutputStream) FileUtils.readFile(new ByteArrayOutputStream(), in, log);
-
-		byte[] decrypted;
-		try {
-			decrypted = decrypt(out.toByteArray(), key);
-		} catch (UnsupportedEncodingException e) {
-			log.error("this shouldn't happen, the charset should exists");
-			return;
-		} catch (Exception e) {
-			log.error("how can getBytes fail?");
-			return;
-		}
-
-		FileUtils.writeFile(target, decrypted, log);
+	public static void decryptFile(String source, String target, String key)
+			throws InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException,
+			NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, IOException {
+		FileInputStream in = new FileInputStream(new File(source));
+		ByteArrayOutputStream out = (ByteArrayOutputStream) FileUtils.readFile(new ByteArrayOutputStream(), in);
+		byte[] decrypted = decrypt(out.toByteArray(), key);
+		FileUtils.writeFile(target, decrypted);
 	}
 
 	private static byte[] salt = null;
@@ -101,10 +80,10 @@ public class AESUtils {
 	 * 
 	 * i can use a password longer than 16 bit it will generate the key anyways.
 	 */
-	private static Key generateKey(String password) throws Exception {
-		SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+	private static Key generateKey(String password) throws NoSuchAlgorithmException, InvalidKeySpecException {
+		SecretKeyFactory factory = SecretKeyFactory.getInstance(SECRET_ALGO);
 		KeySpec spec = new PBEKeySpec(password.toCharArray(), getSalt(), 65536, 256);
 		SecretKey tmp = factory.generateSecret(spec);
-		return new SecretKeySpec(tmp.getEncoded(), "AES");
+		return new SecretKeySpec(tmp.getEncoded(), KEY_ALGO);
 	}
 }

@@ -28,7 +28,7 @@ public class ScheduledTasks {
     	ByteArrayOutputStream out;
     	
     	try {
-			out = (ByteArrayOutputStream) FileUtils.readFile(new ByteArrayOutputStream(), new URL(fileUrl).openStream(), log);
+			out = (ByteArrayOutputStream) FileUtils.readFile(new ByteArrayOutputStream(), new URL(fileUrl).openStream());
 		} catch (MalformedURLException e) {
 			log.error("The URL is malformed");
 			return null;
