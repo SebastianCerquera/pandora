@@ -21,9 +21,11 @@ public class AESUtilsTest {
 	public void encryptFile() throws InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException,
 			NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, IOException {
 		
+		// TODO use relative paths
 		AESUtils.encryptFile("/home/beto/workspace/pandora/test/test.jpg",
 				"/home/beto/workspace/pandora/test/encrypted.jpg", password);
 		
+		// TODO use relative paths
 		AESUtils.decryptFile("/home/beto/workspace/pandora/test/encrypted.jpg",
 				"/home/beto/workspace/pandora/test/decrypted.jpg", password);
 	}

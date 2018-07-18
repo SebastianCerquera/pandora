@@ -58,7 +58,13 @@ public class AESUtils {
 	public static void decryptFile(String source, String target, String key)
 			throws InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException,
 			NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, IOException {
-		FileInputStream in = new FileInputStream(new File(source));
+		decryptFile(new File(source), new File(target), key);
+	}
+	
+	public static void decryptFile(File source, File target, String key)
+			throws InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException,
+			NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, IOException {
+		FileInputStream in = new FileInputStream(source);
 		ByteArrayOutputStream out = (ByteArrayOutputStream) FileUtils.readFile(new ByteArrayOutputStream(), in);
 		byte[] decrypted = decrypt(out.toByteArray(), key);
 		FileUtils.writeFile(target, decrypted);
