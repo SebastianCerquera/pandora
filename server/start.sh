@@ -8,7 +8,7 @@ VERSION=pandora/server:0.0.5
 
 sudo chmod 777 $BASE/runs
 
-sudo docker run --rm -p 80:80 -e N=$N -v $BASE/runs:/usr/share/nginx/html -v $BASE/backup:$BASE/backup -it $VERSION nginx
+sudo docker run --rm -p 48080:80 -e N=$N -v $BASE/runs:/usr/share/nginx/html -it $VERSION nginx
 
 sudo umount $BASE/runs
 dd if=/dev/zero of=$BASE/FS bs=1M count=1024

@@ -25,6 +25,7 @@ ssh -p $PORT -i $PEM $USER@$HOST 'bash -s' <<EOF
 cd $SOURCE/server
 git pull origin master
 sudo docker build -t $VERSION .
+mkdir $IMAGES/$ID/
 EOF
 
 rsync -a --progress -e "ssh -p $PORT -i $PEM" $(pwd)/$ID/ $USER@$HOST:$IMAGES/$ID/ > /dev/null
