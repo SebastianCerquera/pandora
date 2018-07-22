@@ -8,12 +8,14 @@ if [ "$#" -lt 2 ]; then
    echo "It requieres both the endpoint and the pem file"
    exit 1
 fi
-   
-HOST=$1
+
+ID=$1
+
+HOST=$2
 PORT=22
 USER=pandora
 
-PEM=$2
+PEM=$3
 
 BASE=/home/pandora
 IMAGES=$BASE/runs
@@ -25,4 +27,4 @@ git pull origin master
 sudo docker build -t $VERSION .
 EOF
 
-rsync -a --progress -e "ssh -p $PORT" $(pwd)/ $USER@$HOST:$IMAGES/ > /dev/null
+rsync -a --progress -e "ssh -p $PORT -i $PEM" $ID/$(pwd)/ $USER@$HOST:$IMAGES/$ID/ > /dev/null
