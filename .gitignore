@@ -4,6 +4,7 @@
 client/.classpath
 client/.project
 client/.settings/
+client/.factorypath
 client/target/
 .recommenders/
 test/decrypted.jpg

@@ -25,16 +25,24 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest
+@SpringBootTest(properties = { "serverEndpoint=http://qanomads.com", "targetFolder=/opt/pandora", "test=abcde" })
 public class ApplicationTest {
-    
-    @Autowired
-    private ScheduledTasks tasks;
 
-    @Test
-    public void contextLoads() {
-        // Basic integration test that shows the context starts up properly
-        assertThat(tasks).isNotNull();
-    }
+	@Autowired
+	private ConfigurationProperties properties;
+
+	@Autowired
+	private ScheduledTasks tasks;
+
+	@Test
+	public void contextLoads() {
+		// Basic integration test that shows the context starts up properly
+		assertThat(tasks).isNotNull();
+	}
+
+	@Test
+	public void checkProperties() {
+		assertThat(properties.getServerEndpoint()).isEqualTo("http://qanomads.com");
+	}
 
 }

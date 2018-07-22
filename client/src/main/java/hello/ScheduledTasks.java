@@ -8,6 +8,8 @@ import java.nio.charset.Charset;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -15,15 +17,17 @@ import javax.crypto.NoSuchPaddingException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ScheduledTasks {
 
-	private static String FILE_URL = "http://qanomads.com:48080/";
+	@Autowired
+	private ConfigurationProperties instanceProperties;
 
-	private static String TARGET_DIR = "/opt/pandora";
+	private Map<String, Boolean> problems = new ConcurrentHashMap<>();
 
 	private static final Logger log = LoggerFactory.getLogger(ScheduledTasks.class);
 
@@ -33,26 +37,26 @@ public class ScheduledTasks {
 		try {
 			payload = FileUtils.downloadFileToMemory(fileUrl);
 		} catch (MalformedURLException e) {
-			log.error("The URL is malformed");
+			log.error("The URL is malformed: " + fileUrl);
 			return null;
 		} catch (IOException e) {
-			log.error("It fails to read from the stream");
+			log.error("It fails to read from the stream: " +  fileUrl);
 			return null;
 		}
 
 		return new String(payload, Charset.forName("UTF-8"));
 	}
-	
+
 	private void downloadAndEncrypt(String source, String target, String key) {
 		byte[] payload = null;
 
 		try {
 			payload = FileUtils.downloadFileToMemory(source);
 		} catch (MalformedURLException e) {
-			log.error("The URL is malformed");
+			log.error("The URL is malformed: " + source);
 			return;
 		} catch (IOException e) {
-			log.error("It fails to download the payload");
+			log.error("It fails to download the payload: " + source);
 			return;
 		}
 
@@ -78,7 +82,7 @@ public class ScheduledTasks {
 			log.error("there is an error with the padding");
 			return;
 		}
-		
+
 		try {
 			FileUtils.writeFile(FileUtils.createFile(target), encrypted);
 		} catch (FileNotFoundException e) {
@@ -102,19 +106,28 @@ public class ScheduledTasks {
 	}
 
 	private void startProblems() {
-		String[] problems = getProblems(FILE_URL + "/INDEX");
+		log.info("Downloading problems from: " +  instanceProperties.getServerEndpoint());
+		String[] problems = getProblems(instanceProperties.getServerEndpoint() + "/INDEX");
 		if (problems == null)
 			return;
 
 		for (String id : problems) {
-			String[] metadata = getMetadata(downloadProblems(FILE_URL + "/" + id + "/KEY"));
-			startProblem(id, metadata[1], Long.valueOf(metadata[0]));
+			String[] metadata = getMetadata(
+					downloadProblems(instanceProperties.getServerEndpoint() + "/" + id + "/KEY"));
+
+			if (this.problems.get(id) == null) {
+				this.problems.put(id, true);
+				startProblem(id, metadata[1], Long.valueOf(metadata[0]));
+			} else {
+				log.error("The problem with code: " + id + "has already being used");
+			}
+				
 		}
 
 	}
 
 	private String[] getMetadata(String raw) {
-		//TODO DO I NEED TO TRIM THE FILE?
+		// TODO DO I NEED TO TRIM THE FILE?
 		return raw.split("\n");
 	}
 
@@ -144,17 +157,19 @@ public class ScheduledTasks {
 			return;
 		}
 	}
-	
+
 	private void startProblem(String id, String solution, Long delay) {
 		Thread newProblem = new Thread() {
 			public void run() {
 				try {
-					downloadAndEncrypt(FILE_URL + "/" + id + "/safe.tar", TARGET_DIR + "/" + id + "/safe.tar.encrypted", solution);
+					downloadAndEncrypt(instanceProperties.getServerEndpoint() + "/" + id + "/safe.tar",
+							instanceProperties.getTargetFolder() + "/" + id + "/safe.tar.encrypted", solution);
 					log.info("A new problem has started");
-					
+
 					Thread.sleep(delay * 1000);
-					
-					decryptPayload(TARGET_DIR + "/" + id + "/safe.tar.encrypted", TARGET_DIR + "/" + id + "/safe.tar", solution);
+
+					decryptPayload(instanceProperties.getTargetFolder() + "/" + id + "/safe.tar.encrypted",
+							instanceProperties.getTargetFolder() + "/" + id + "/safe.tar", solution);
 					log.info("The problem has completed the delay");
 					log.info("This was the solution:" + solution);
 				} catch (InterruptedException v) {
@@ -166,7 +181,7 @@ public class ScheduledTasks {
 		newProblem.start();
 	}
 
-	@Scheduled(fixedDelay = 1800 * 1000)
+	@Scheduled(fixedDelay = 900 * 1000)
 	public void checkProblems() {
 		startProblems();
 	}
