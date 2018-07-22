@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package hello;
+package pandora.client;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -23,6 +23,9 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import pandora.client.ConfigurationProperties;
+import pandora.client.ScheduledTasks;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(properties = { "serverEndpoint=http://qanomads.com", "targetFolder=/opt/pandora", "test=abcde" })

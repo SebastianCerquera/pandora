@@ -1,4 +1,4 @@
-package hello;
+package pandora.client;
 
 import java.io.IOException;
 import java.security.InvalidKeyException;
@@ -11,6 +11,8 @@ import javax.crypto.NoSuchPaddingException;
 
 import org.junit.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+
+import pandora.client.AESUtils;
 
 @SpringBootTest
 public class AESUtilsTest {

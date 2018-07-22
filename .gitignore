@@ -5,6 +5,7 @@ client/.classpath
 client/.project
 client/.settings/
 client/.factorypath
+client/.springBeans
 client/target/
 .recommenders/
 test/decrypted.jpg

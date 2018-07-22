@@ -1,4 +1,4 @@
-package hello;
+package pandora.client;
 
 import java.io.File;
 import java.io.FileNotFoundException;
