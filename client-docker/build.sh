@@ -5,9 +5,6 @@ set -e
 DEV_VERSION=$1
 BASE=$(pwd)
 
-git clone https://github.com/SebastianCerquera/pandora.git
-BASE=$BASE/pandora
-
 cd $BASE/dev/
 sudo docker build -t pandora/dev:$DEV_VERSION .
 
