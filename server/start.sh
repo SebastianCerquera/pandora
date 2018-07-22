@@ -3,7 +3,7 @@
 set -e
 
 N=$1
-BASE=/opt/pandora
+BASE=/home/pandora
 VERSION=pandora/server:0.0.5
 
 sudo chmod 777 $BASE/runs
