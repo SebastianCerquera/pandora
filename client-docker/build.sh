@@ -8,7 +8,7 @@ BASE=$(pwd)
 cd $BASE/dev/
 sudo docker build -t pandora/dev:$DEV_VERSION .
 
-sudo docker run --rm -v $HOME/.m2/:/home/ubuntu/.m2/ -v $BASE/pandora/client:/home/ubuntu/workspace -it pandora/dev:$DEV_VERSION compile
+sudo docker run --rm -v $HOME/.m2/:/root/.m2/ -v $BASE/client:/root/workspace -it pandora/dev:$DEV_VERSION compile
 
 cd $BASE/client
 VERSION=$(cat pom.xml | perl -ne '/<version>([\d\.]+)<\/version>/ && print $1')

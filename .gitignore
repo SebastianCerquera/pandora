@@ -10,4 +10,5 @@ client/target/
 .recommenders/
 test/decrypted.jpg
 test/encrypted.jpg
+client-docker/client.jar
 *~
