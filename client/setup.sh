@@ -1,8 +1,8 @@
 #!/bin/bash
 
-sudo su -
+## The script should start as root
 
-NEW_USER=$1
+NEW_USER=pandora
 
 useradd $NEW_USER
 echo "pandora:pass+control=PANDORA" | chpasswd
@@ -12,39 +12,41 @@ mkdir /home/$NEW_USER/.local
 chown -R $NEW_USER:$NEW_USER /home/$NEW_USER
 
 
-cat > /etc/sudoers.d/pandora <<EOF
-pandora ALL=(ALL) NOPASSWD: ALL
+cat > /etc/sudoers.d/$NEW_USER <<EOF
+$NEW_USER ALL=(ALL) NOPASSWD: ALL
 EOF
+
+
+## It can keep on using sudo
+
+su $NEW_USER -
 
 mkdir .ssh
 chmod 755 .ssh/
 sudo cp /home/ubuntu/.ssh/authorized_keys ~/.ssh/
 cd .ssh/
-sudo chown pandora:pandora authorized_keys
+sudo chown $NEW_USER:$NEW_USER authorized_keys
 
 
-apt-get remove docker docker-engine docker.io
-apt-get update
-apt-get install -y  \
+sudo apt-get remove docker docker-engine docker.io
+sudo apt-get update
+sudo apt-get install -y  \
     apt-transport-https \
     ca-certificates \
     curl \
     software-properties-common
  
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
  
-apt-key fingerprint 0EBFCD88
+sudo apt-key fingerprint 0EBFCD88
  
-add-apt-repository \
+sudo add-apt-repository \
    "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
    $(lsb_release -cs) \
    stable"
  
-apt-get update
-apt-get install -y docker-ce
-
-
-su pandora -
+sudo apt-get update
+sudo apt-get install -y docker-ce
 
 
 cd ~
