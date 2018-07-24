@@ -47,6 +47,10 @@ public class ScheduledTasks {
 		return new String(payload, Charset.forName("UTF-8"));
 	}
 
+	private void downloadAndEncrypt(String source, String target, Long key) {
+		downloadAndEncrypt(source,target, String.valueOf(key));
+	}
+	
 	private void downloadAndEncrypt(String source, String target, String key) {
 		byte[] payload = null;
 
@@ -117,7 +121,7 @@ public class ScheduledTasks {
 
 			if (this.problems.get(id) == null) {
 				this.problems.put(id, true);
-				startProblem(id, metadata[1], Long.valueOf(metadata[0]));
+				startProblem(id, Long.valueOf(metadata[1]), Long.valueOf(metadata[0]));
 			} else {
 				log.error("The problem with code: " + id + "has already being used");
 			}
@@ -129,6 +133,10 @@ public class ScheduledTasks {
 	private String[] getMetadata(String raw) {
 		// TODO DO I NEED TO TRIM THE FILE?
 		return raw.split("\n");
+	}
+	
+	private void decryptPayload(String source, String target, Long key) {
+		decryptPayload(source,target, String.valueOf(key));
 	}
 
 	private void decryptPayload(String source, String target, String key) {
@@ -158,20 +166,20 @@ public class ScheduledTasks {
 		}
 	}
 
-	private void startProblem(String id, String solution, Long delay) {
+	private void startProblem(String id, Long solution, Long delay) {
 		Thread newProblem = new Thread() {
 			public void run() {
 				try {
 					downloadAndEncrypt(instanceProperties.getServerEndpoint() + "/" + id + "/safe.tar",
 							instanceProperties.getTargetFolder() + "/" + id + "/safe.tar.encrypted", solution);
-					log.info("A new problem has started");
+					log.info("A new problem has started, id code: " + id);
 
 					Thread.sleep(delay * 1000);
 
 					decryptPayload(instanceProperties.getTargetFolder() + "/" + id + "/safe.tar.encrypted",
 							instanceProperties.getTargetFolder() + "/" + id + "/safe.tar", solution);
 					log.info("The problem has completed the delay");
-					log.info("This was the solution:" + solution);
+					log.info("This was the solution for problem with code id " + id + ": " + solution);
 				} catch (InterruptedException v) {
 					log.error("The problem thread was interrupted");
 				}
