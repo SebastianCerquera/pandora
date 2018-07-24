@@ -40,7 +40,7 @@ public class ScheduledTasks {
 			log.error("The URL is malformed: " + fileUrl);
 			return null;
 		} catch (IOException e) {
-			log.error("It fails to read from the stream: " +  fileUrl);
+			log.error("It fails to read from the stream: " + fileUrl);
 			return null;
 		}
 
@@ -48,9 +48,9 @@ public class ScheduledTasks {
 	}
 
 	private void downloadAndEncrypt(String source, String target, Long key) {
-		downloadAndEncrypt(source,target, String.valueOf(key));
+		downloadAndEncrypt(source, target, String.valueOf(key));
 	}
-	
+
 	private void downloadAndEncrypt(String source, String target, String key) {
 		byte[] payload = null;
 
@@ -110,33 +110,28 @@ public class ScheduledTasks {
 	}
 
 	private void startProblems() {
-		log.info("Downloading problems from: " +  instanceProperties.getServerEndpoint());
+		log.info("Downloading problems from: " + instanceProperties.getServerEndpoint());
 		String[] problems = getProblems(instanceProperties.getServerEndpoint() + "/INDEX");
 		if (problems == null)
 			return;
 
 		for (String id : problems) {
-			String[] metadata = getMetadata(
-					downloadProblems(instanceProperties.getServerEndpoint() + "/" + id + "/KEY"));
+			String[] metadata = downloadProblems(instanceProperties.getServerEndpoint() + "/" + id + "/KEY")
+					.split("\n");
 
 			if (this.problems.get(id) == null) {
 				this.problems.put(id, true);
-				startProblem(id, Long.valueOf(metadata[1]), Long.valueOf(metadata[0]));
+				startProblem(id, metadata[1], Long.valueOf(metadata[2]), Long.valueOf(metadata[0]));
 			} else {
 				log.error("The problem with code: " + id + "has already being used");
 			}
-				
+
 		}
 
 	}
 
-	private String[] getMetadata(String raw) {
-		// TODO DO I NEED TO TRIM THE FILE?
-		return raw.split("\n");
-	}
-	
 	private void decryptPayload(String source, String target, Long key) {
-		decryptPayload(source,target, String.valueOf(key));
+		decryptPayload(source, target, String.valueOf(key));
 	}
 
 	private void decryptPayload(String source, String target, String key) {
@@ -166,14 +161,15 @@ public class ScheduledTasks {
 		}
 	}
 
-	private void startProblem(String id, Long solution, Long delay) {
+	private void startProblem(String id, String modulus, Long solution, Long delay) {
 		Thread newProblem = new Thread() {
 			public void run() {
 				try {
 					downloadAndEncrypt(instanceProperties.getServerEndpoint() + "/" + id + "/safe.tar",
 							instanceProperties.getTargetFolder() + "/" + id + "/safe.tar.encrypted", solution);
 					log.info("A new problem has started, id code: " + id);
-
+					log.info("This is the modulus for the problem with id: " + id + " " + modulus);
+					
 					Thread.sleep(delay * 1000);
 
 					decryptPayload(instanceProperties.getTargetFolder() + "/" + id + "/safe.tar.encrypted",
@@ -187,7 +183,7 @@ public class ScheduledTasks {
 		};
 
 		newProblem.start();
-		
+
 		System.gc();
 	}
 

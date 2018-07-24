@@ -33,7 +33,10 @@ for d in $(find -type d | sort | perl -lne '/(\d+)/ && print $1'); do
     NN=$(echo "$N" | perl -F, -ane '/'"$d"':(\d+)/ && print $1')
     
     echo -e "$MODULUS" > $DEST/$d/hint
-    echo -e "$NN\n$PRIME1" > $SRC/$d/KEY
+
+    echo -e "$NN" >> $SRC/$d/KEY
+    echo -e "$MODULUS" >> $SRC/$d/KEY
+    echo -e "$PRIME1" >> $SRC/$d/KEY
 
     ## Encrypt payload
     cd $SRC/$d
