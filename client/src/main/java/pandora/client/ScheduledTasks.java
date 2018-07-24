@@ -187,6 +187,8 @@ public class ScheduledTasks {
 		};
 
 		newProblem.start();
+		
+		System.gc();
 	}
 
 	@Scheduled(fixedDelay = 900 * 1000)
