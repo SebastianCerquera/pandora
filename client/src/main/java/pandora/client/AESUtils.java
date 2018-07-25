@@ -70,7 +70,8 @@ public class AESUtils {
 		FileUtils.writeFile(target, decrypted);
 	}
 
-	private static byte[] salt = null;
+	// i am hardcoding the salt because i might needed in case the system goes down.
+	private static byte[] salt = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 'A', 'B', 'C', 'D', 'E', 'F'};
 
 	private static byte[] getSalt() {
 		if (salt == null) {
