@@ -12,3 +12,10 @@ test/decrypted.jpg
 test/encrypted.jpg
 client-docker/client.jar
 *~
+server/complete/.classpath
+server/complete/.project
+server/complete/.settings/
+server/complete/.factorypath
+server/complete/.springBeans
+server/complete/target/
+server/complete/.mvn/
