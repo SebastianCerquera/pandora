@@ -6,6 +6,8 @@ WORKDIR /opt/solver
 RUN git clone https://github.com/curtisseizert/CUDASieve
 
 WORKDIR /opt/solver/CUDASieve
-RUN mkdir lib && cd lib
+RUN mkdir lib
+
+WORKDIR /opt/solver/CUDASieve/lib
 RUN wget https://bintray.com/curtisseizert/CUDASieve/download_file?file_path=libcudasieve.a -O libcudasieve.a
-COPY main.cpp /opt/solver/CUDASieve/main.cpp
+COPY main.cpp /opt/solver/CUDASieve/lib/main.cpp
