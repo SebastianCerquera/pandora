@@ -100,6 +100,7 @@ public class RSAController {
 		TarOutputStream tar = new TarOutputStream(out);
 		for (RSAPayload image : images) {
 			try {
+				//tar will complain if the timestamp is in the future 
 				TarHeader header = TarHeader.createHeader(image.getName(), Long.valueOf(image.getBlob().length),
 						(new Date()).getTime(), false, 0700 + 0070 + 0007);
 				tar.putNextEntry(new TarEntry(header));
