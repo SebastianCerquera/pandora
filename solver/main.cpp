@@ -18,6 +18,8 @@ void checkModulus(uint64_t * primes, mpz_t base, size_t lenMin, size_t lenMax)
         if(mpz_cmp_ui(mod, 0) == 0){
             std::cout << "SOLUTION FOUND: ";
             mpz_out_str(stdout, 10, prime);
+            std::cout << " FOR MODULUS: ";
+            mpz_out_str(stdout, 10, base);
             std::cout << "\n";
         }
     }
