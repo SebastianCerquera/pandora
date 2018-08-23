@@ -58,10 +58,10 @@ int main(int argc, char* argv[])
     size_t interval = (len - (len % 4))/4;
 
 
-    checkModulusAll(primes, base, 0*interval, 1*interval);
-    checkModulusAll(primes, base, 1*interval, 2*interval);
-    checkModulusAll(primes, base, 2*interval, 3*interval);
-    checkModulusAll(primes, base, 3*interval, 4*interval + (len % 4));
+    checkModulusAll(primes, base, 0*interval, 1*interval, size);
+    checkModulusAll(primes, base, 1*interval, 2*interval, size);
+    checkModulusAll(primes, base, 2*interval, 3*interval, size);
+    checkModulusAll(primes, base, 3*interval, 4*interval + (len % 4), size);
     
     cudaFreeHost(primes);            // must be freed with this call b/c page-locked memory is used.
     return 0;

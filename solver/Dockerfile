@@ -11,3 +11,5 @@ RUN mkdir lib
 WORKDIR /opt/solver/CUDASieve/lib
 RUN wget https://bintray.com/curtisseizert/CUDASieve/download_file?file_path=libcudasieve.a -O libcudasieve.a
 COPY main.cpp /opt/solver/CUDASieve/lib/main.cpp
+COPY runner.sh /opt/solver/CUDASieve/lib/runner.sh
+COPY slides.py /opt/solver/CUDASieve/lib/slides.py
