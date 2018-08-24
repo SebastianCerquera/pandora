@@ -16,16 +16,10 @@ cat > /etc/sudoers.d/$NEW_USER <<EOF
 $NEW_USER ALL=(ALL) NOPASSWD: ALL
 EOF
 
-
-## It can keep on using sudo
-
-su $NEW_USER -
-
-mkdir .ssh
-chmod 755 .ssh/
-sudo cp /home/ubuntu/.ssh/authorized_keys ~/.ssh/
-cd .ssh/
-sudo chown $NEW_USER:$NEW_USER authorized_keys
+sudo -u $NEW_USER mkdir /home/$NEW_USER/.ssh
+sudo -u $NEW_USER chmod 755 /home/$NEW_USER/.ssh
+sudo cp /home/ubuntu/.ssh/authorized_keys /home/$NEW_USER/.ssh/authorized_keys
+sudo chown $NEW_USER:$NEW_USER /home/$NEW_USER/.ssh/authorized_keys
 
 
 sudo apt-get remove docker docker-engine docker.io
