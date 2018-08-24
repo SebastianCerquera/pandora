@@ -48,7 +48,9 @@ sleep 300
 curl -XDELETE localhost:8080/v1/problems/$ID
 
 [ -d payload ] || mkdir payload
-sudo docker cp $CLIENT_DOCKER:/tmp/runs/$ID/safe.tar safe.tar
+sudo docker cp $CLIENT_DOCKER:/tmp/runs/$ID/safe.tar payload/safe.tar
+
+cd payload
 tar xf safe.tar 2>/dev/null
 PAYLOAD_ENCRYPTED=$(ls | sort | perl -le '$r = ""; while(<>){if(/.*\.jpg/){chomp(); $r=$r.$_;}} print $r;')
 if [ "x$PAYLOAD_ENCRYPTED" == "x1.jpg2.jpg3.jpg" ]; then
