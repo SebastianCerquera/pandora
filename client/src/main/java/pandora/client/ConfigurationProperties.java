@@ -16,6 +16,13 @@ public class ConfigurationProperties {
 	@Value("${targetFolder}")
 	String targetFolder;
 	
+	@Value("${jobDelay}")
+	String jobDelay;
+	
+	public String getJobDelay() {
+		return jobDelay;
+	}
+
 	public String getServerEndpoint() {
 		return endpoint;
 	}

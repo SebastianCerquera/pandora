@@ -111,12 +111,12 @@ public class ScheduledTasks {
 
 	private void startProblems() {
 		log.info("Downloading problems from: " + instanceProperties.getServerEndpoint());
-		String[] problems = getProblems(instanceProperties.getServerEndpoint() + "/INDEX");
+		String[] problems = getProblems(instanceProperties.getServerEndpoint() + "/v1/problems");
 		if (problems == null)
 			return;
 
 		for (String id : problems) {
-			String[] metadata = downloadProblems(instanceProperties.getServerEndpoint() + "/" + id + "/KEY")
+			String[] metadata = downloadProblems(instanceProperties.getServerEndpoint() + "/v1/problems/" + id)
 					.split("\n");
 
 			if (this.problems.get(id) == null) {
@@ -165,7 +165,7 @@ public class ScheduledTasks {
 		Thread newProblem = new Thread() {
 			public void run() {
 				try {
-					downloadAndEncrypt(instanceProperties.getServerEndpoint() + "/" + id + "/safe.tar",
+					downloadAndEncrypt(instanceProperties.getServerEndpoint() + "/v1/problems/" + id  + "/images",
 							instanceProperties.getTargetFolder() + "/" + id + "/safe.tar.encrypted", solution);
 					log.info("A new problem has started, id code: " + id);
 					log.info("This is the modulus for the problem with id: " + id + " " + modulus);
@@ -186,9 +186,10 @@ public class ScheduledTasks {
 
 		System.gc();
 	}
-
-	@Scheduled(fixedDelay = 900 * 1000)
+	
 	public void checkProblems() {
 		startProblems();
 	}
+	
+	
 }

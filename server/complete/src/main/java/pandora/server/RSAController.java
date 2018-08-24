@@ -2,8 +2,12 @@ package pandora.server;
 
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -23,10 +27,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import pandora.server.ConfigurationProperties;
+
 @RestController
 public class RSAController {
 
 	private static final Logger log = LoggerFactory.getLogger(RSAController.class);
+
+	@Autowired
+	private ConfigurationProperties properties;
 
 	@Autowired
 	RSAProblemRepository repositoryProblem;
@@ -49,15 +58,27 @@ public class RSAController {
 		return builder.toString();
 	}
 
-	@PostMapping(value = "/v1/problems", produces = { "application/json" })
-	public String create() {
+	@PostMapping(value = "/v1/problems/{delay}", produces = { "application/json" })
+	public String create(@PathVariable("delay") String delay) {
 		/**
 		 * it is missing to generate the RSA key pair, the easiest is to use the bash
 		 * utils.
 		 * 
 		 * i am temporaly hardcoding the values.
 		 */
-		RSAProblem problem = repositoryProblem.save(new RSAProblem("123456789111", "1234567111", "123456789111"));
+		ArrayList<String> key = new ArrayList<>();
+		try {
+			Process p = Runtime.getRuntime().exec(properties.getRsagen());
+			BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
+			String line = null;
+			while ((line = br.readLine()) != null)
+				key.add(line);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		RSAProblem problem = repositoryProblem.save(new RSAProblem(key.get(0), key.get(1), delay));
 		return "{\"id\": \"" + problem.getId() + "\"}";
 	}
 
@@ -65,10 +86,10 @@ public class RSAController {
 	public void delete(@PathVariable("id") Long id) {
 		Optional<RSAProblem> problem = repositoryProblem.findById(id);
 		if (problem == Optional.<RSAProblem>empty())
-			throw new IllegalStateException();
+			throw new IllegalStateException("There is no problem with the provided ID");
 		repositoryProblem.delete(problem.get());
 	}
-	
+
 	@GetMapping(value = "/v1/problems/{id}", produces = { "plain/text" })
 	public String key(@PathVariable("id") Long id) {
 		Optional<RSAProblem> problem = repositoryProblem.findById(id);
@@ -96,11 +117,10 @@ public class RSAController {
 
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 
-
 		TarOutputStream tar = new TarOutputStream(out);
 		for (RSAPayload image : images) {
 			try {
-				//tar will complain if the timestamp is in the future 
+				// tar will complain if the timestamp is in the future
 				TarHeader header = TarHeader.createHeader(image.getName(), Long.valueOf(image.getBlob().length),
 						(new Date()).getTime(), false, 0700 + 0070 + 0007);
 				tar.putNextEntry(new TarEntry(header));
@@ -110,7 +130,7 @@ public class RSAController {
 				e.printStackTrace();
 			}
 		}
-		
+
 		try {
 			tar.flush();
 			tar.close();
