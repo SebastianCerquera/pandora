@@ -21,8 +21,8 @@ public class Application {
 	public CommandLineRunner setup(RSAProblemRepository repository) {
 		return (args) -> {
 			// save a couple of customers
-			repository.save(new RSAProblem("300", "1234567", "123456789"));
-			repository.save(new RSAProblem("300", "1234567", "123456789"));
+			repository.save(new RSAProblem("123456789", "1234567", "300"));
+			repository.save(new RSAProblem("123456789", "1234567", "300"));
 
 			// fetch all customers
 			log.info("-------------------------------");
