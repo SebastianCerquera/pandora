@@ -41,6 +41,10 @@ node('docker-agent'){
              echo "Deploying ";
 	     sh '/usr/bin/docker stop client-jenkins;'
 	     sh '/usr/bin/docker rm client-jenkins;'
+
+             echo "Push images";
+             sh 'bash ./server-docker/push.sh'
+	     sh 'bash ./client-docker/push.sh'
          };
      };
 }
