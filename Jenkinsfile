@@ -1,55 +1,46 @@
-pipeline {
-  agent { label 'app-agent' }
+// I needed to harcode the values, i was unable to use the variables.
+def DEV_VERSION="0.0.1";
+def PANDORA_VERSION="";
+def DOCKER_BIN="/usr/bin/docker";
+def RSAGEN="/opt/rsagen.sh";
 
-  stages {
+node('docker-agent'){
+     stage('Prepare') {
+     	checkout([
+             $class: 'GitSCM',
+             branches: [[
+                 name: 'master'
+             ]],
+             doGenerateSubmoduleConfigurations: false,
+             submoduleCfg: [],
+             userRemoteConfigs: [[
+                 url: 'https://github.com/SebastianCerquera/pandora.git'
+             ]]
+         ]);
+	script {
+             sh 'find ./ -type f -iname "*.sh" -exec chmod +x {} \\;'
 
-    stage('prepare') {
-      steps {
-        // Project with utilities
-        checkout([
-            $class: 'GitSCM',
-            branches: [[
-                name: 'master'
-            ]],
-            doGenerateSubmoduleConfigurations: false,
-            extensions: [[
-                $class: 'RelativeTargetDirectory',
-                relativeTargetDir: './builder'
-            ]],
-            submoduleCfg: [],
-            userRemoteConfigs: [[
-                url: 'https://github.com/SebastianCerquera/pandora.git'
-            ]]
-        ])
-        script {
-            sh 'find ./ -type f -iname "*.sh" -exec chmod +x {} \\;'
-        }
-      }
-    }
+             echo "Building Server"
+             sh 'bash ./server-docker/build.sh 0.0.1'
 
-    stage ('Build') {
-        parallel{
-          stage ('Build Server') {
-            steps {
-                script {
-                    echo "Building Server"
-                }
-            }
-          }
-          stage ('Build Client') {
-            steps{
-                script {
-                    echo "Building Client"
-                }
-            }
-          }
-        }
-    }
+             echo "Building Client"
+	     sh 'bash ./client-docker/build.sh 0.0.1'
 
-  post {
-      always {
-          archiveArtifacts '**/**/*-*.jar'
-          deleteDir()
-      }
-  }
+             echo "Deploying Server";
+             sh '/usr/bin/docker run -d --name server-jenkins -e RSAGEN=/opt/rsagen.sh -t pandora/server:stable server;'
+
+             echo "Deploying Client";
+	     sh '/usr/bin/docker run -d --name client-jenkins -e JOB_DELAY=60 -e SERVER_ENDPOINT=http://pandora:8080 -e TARGET_FOLDER=/tmp/runs --link server-jenkins:pandora -t pandora/client:stable client;'
+
+             sh 'sleep 600;'
+
+             echo "Destroying Server";
+	     sh '/usr/bin/docker stop server-jenkins;'
+	     sh '/usr/bin/docker rm server-jenkins;'
+
+             echo "Deploying ";
+	     sh '/usr/bin/docker stop client-jenkins;'
+	     sh '/usr/bin/docker rm client-jenkins;'
+         };
+     };
 }
