@@ -1,9 +1,9 @@
 FROM pandora/dev:0.0.1
 
+USER root
 COPY simple-test.sh /opt/simple-test.sh
 RUN chmod +x /opt/simple-test.sh
 
-USER root
 COPY entrypoint.sh /opt/entrypoint.sh
 RUN chmod +x /opt/entrypoint.sh
 
