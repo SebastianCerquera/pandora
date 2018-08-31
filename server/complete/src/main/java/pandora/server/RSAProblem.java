@@ -22,6 +22,8 @@ public class RSAProblem {
 	
 	private String delay;
 	
+	private STATES state;
+
 	@OneToMany(cascade=CascadeType.REMOVE)
 	private List<RSAPayload> images;
 	
@@ -72,6 +74,14 @@ public class RSAProblem {
 	public void setImages(List<RSAPayload> images) {
 		this.images = images;
 	}
+	
+	public STATES getState() {
+		return state;
+	}
+
+	public void setState(STATES state) {
+		this.state = state;
+	}
 
 	@Override
 	public String toString() {
@@ -82,6 +92,10 @@ public class RSAProblem {
 		builder.append(this.delay);
 		builder.append(">");
 		return builder.toString();
+	}
+	
+	public static enum STATES {
+		CREATED, IN_PROGESS, COMPLETED
 	}
 	
 }

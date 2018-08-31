@@ -18,7 +18,6 @@ import javax.crypto.NoSuchPaddingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -120,8 +119,10 @@ public class ScheduledTasks {
 					.split("\n");
 
 			if (this.problems.get(id) == null) {
-				this.problems.put(id, true);
-				startProblem(id, metadata[1], Long.valueOf(metadata[2]), Long.valueOf(metadata[0]));
+				if (metadata[3] == "COMPLETED") {
+					this.problems.put(id, true);
+					startProblem(id, metadata[1], Long.valueOf(metadata[2]), Long.valueOf(metadata[0]));
+				}
 			} else {
 				log.error("The problem with code: " + id + "has already being used");
 			}
@@ -165,11 +166,11 @@ public class ScheduledTasks {
 		Thread newProblem = new Thread() {
 			public void run() {
 				try {
-					downloadAndEncrypt(instanceProperties.getServerEndpoint() + "/v1/problems/" + id  + "/images",
+					downloadAndEncrypt(instanceProperties.getServerEndpoint() + "/v1/problems/" + id + "/images",
 							instanceProperties.getTargetFolder() + "/" + id + "/safe.tar.encrypted", solution);
 					log.info("A new problem has started, id code: " + id);
 					log.info("This is the modulus for the problem with id: " + id + " " + modulus);
-					
+
 					Thread.sleep(delay * 1000);
 
 					decryptPayload(instanceProperties.getTargetFolder() + "/" + id + "/safe.tar.encrypted",
@@ -186,10 +187,9 @@ public class ScheduledTasks {
 
 		System.gc();
 	}
-	
+
 	public void checkProblems() {
 		startProblems();
 	}
-	
-	
+
 }

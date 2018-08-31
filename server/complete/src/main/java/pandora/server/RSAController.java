@@ -3,7 +3,6 @@ package pandora.server;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -22,12 +21,14 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import org.springframework.web.multipart.MultipartFile;
 
 import pandora.server.ConfigurationProperties;
+import pandora.server.RSAProblem.STATES;
 
 @RestController
 public class RSAController {
@@ -79,6 +80,7 @@ public class RSAController {
 		}
 
 		RSAProblem problem = repositoryProblem.save(new RSAProblem(key.get(0), key.get(1), delay));
+		problem.setState(STATES.CREATED);
 		return "{\"id\": \"" + problem.getId() + "\"}";
 	}
 
@@ -90,6 +92,14 @@ public class RSAController {
 		repositoryProblem.delete(problem.get());
 	}
 
+	/*
+	 * It might be that the client syncs the problem before uploading the images
+	 * that compose the problem, the client would downlad an incomplete copy and
+	 * later won't update the value because there is a problem with the id.
+	 * 
+	 * I decided to add a 4th line which tells if the user already uploaded all the
+	 * images tha compose the payload.
+	 */
 	@GetMapping(value = "/v1/problems/{id}", produces = { "plain/text" })
 	public String key(@PathVariable("id") Long id) {
 		Optional<RSAProblem> problem = repositoryProblem.findById(id);
@@ -103,8 +113,19 @@ public class RSAController {
 		builder.append("\n");
 		builder.append(problem.get().getSecret());
 		builder.append("\n");
+		builder.append(problem.get().getState());
+		builder.append("\n");
 
 		return builder.toString();
+	}
+
+	@PutMapping(value = "/v1/problems/{id}", produces = { "plain/text" })
+	public void setState(@RequestParam("state") STATES state, @PathVariable("id") Long id) {
+		Optional<RSAProblem> problem = repositoryProblem.findById(id);
+		if (problem == Optional.<RSAProblem>empty())
+			throw new IllegalStateException();
+
+		problem.get().setState(state);
 	}
 
 	@GetMapping(value = "/v1/problems/{id}/images", produces = { "plain/text" })
@@ -160,6 +181,7 @@ public class RSAController {
 
 		repositoryPayload.save(payload);
 
+		problem.get().setState(STATES.IN_PROGESS);
 		problem.get().getImages().add(payload);
 		repositoryProblem.save(problem.get());
 
