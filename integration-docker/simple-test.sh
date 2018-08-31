@@ -2,7 +2,7 @@
 
 set -e
 
-CLIENT_DOCKER=client-$1
+CLIENT_DOCKER=$1
 
 curl localhost:8080/v1/problems
  
