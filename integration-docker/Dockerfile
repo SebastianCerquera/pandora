@@ -8,4 +8,5 @@ COPY entrypoint.sh /opt/entrypoint.sh
 RUN chmod +x /opt/entrypoint.sh
 
 USER ${USER}
-ENTRYPOINT ["bash", "/opt/entrypoint.sh", "test"]
+ENTRYPOINT ["bash", "/opt/entrypoint.sh"]
+CMD ["test"]
