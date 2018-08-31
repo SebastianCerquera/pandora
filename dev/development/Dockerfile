@@ -5,8 +5,8 @@ ENV  ECLIPSE_STS https://download.springsource.com/release/STS/3.9.5.RELEASE/dis
 
 RUN apt-get update && apt-get install -y build-essential software-properties-common byobu curl git htop man unzip vim wget gedit openssh-server openssh-client xclip maven umlet openjdk-11-jdk apt-transport-https ca-certificates curl software-properties-common
 
-RUN curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add -
-RUN add-apt-repository    "deb [arch=amd64] https://download.docker.com/linux/debian    $(lsb_release -cs)    stable"
+RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+RUN add-apt-repository    "deb [arch=amd64] https://download.docker.com/linux/ubuntu    $(lsb_release -cs)    stable"
 RUN apt-get update && apt-get install -y docker-ce
 
 WORKDIR /opt
