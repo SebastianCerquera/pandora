@@ -33,10 +33,10 @@ node('docker-agent'){
 	     sh '/usr/bin/docker run -d --name client-jenkins -e JOB_DELAY=60 -e SERVER_ENDPOINT=http://pandora:8080 -e TARGET_FOLDER=/tmp/runs --link server-jenkins:pandora -t pandora/client:stable client;'
 
              echo "Building Test"
-	     sh 'bash ./integration-docker/build.sh 0.0.1 client-jenkins'
+	     sh 'bash ./integration-docker/build.sh 0.0.1'
 
              echo "RUnning Test"
-	     sh '/usr/bin/docker run --rm -t pandora/test:0.0.1 --link server-jenkins:pandora'
+	     sh '/usr/bin/docker run --rm --link server-jenkins:pandora -t pandora/test:0.0.1 client-jenkins'
 
              echo "Destroying Server";
 	     sh '/usr/bin/docker stop server-jenkins;'
