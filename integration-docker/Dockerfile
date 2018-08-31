@@ -1,7 +1,5 @@
 FROM pandora/dev:0.0.1
 
-RUN apt-get update && apt-get install curl
-
 COPY simple-test.sh /opt/simple-test.sh
 RUN chmod +x /opt/simple-test.sh
 

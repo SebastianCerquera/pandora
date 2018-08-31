@@ -17,5 +17,7 @@ RUN chmod +x /opt/entrypoint.sh
 
 ENTRYPOINT ["/opt/entrypoint.sh"]
 
+RUN chown ${USER}:${USER} /opt
+
 USER ${USER}
 CMD ["sleep", "infinity"]
