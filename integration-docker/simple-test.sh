@@ -2,6 +2,8 @@
 
 set -e
 
+mkdir /tmp/test && cd /tmp/test
+
 CLIENT_DOCKER=$1
 
 curl pandora:8080/v1/problems
@@ -10,7 +12,7 @@ RAW=$(curl -XPOST pandora:8080/v1/problems/150 2>/dev/null)
 ID=$(echo "$RAW" | perl -ne '/\"id\":\s*(\d+)/ && print $1')
  
 KEY=$(curl pandora:8080/v1/problems/$ID 2>/dev/null)
-perl -e '
+perl -le '
 use bigint;
 
 $str = do { local $/; <STDIN> };
