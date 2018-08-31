@@ -2,8 +2,6 @@
 
 set -e
 
-mkdir /tmp/test && cd /tmp/test
-
 CLIENT_DOCKER=$1
 
 curl pandora:8080/v1/problems
@@ -58,7 +56,9 @@ cd output
 tar xf safe.tar 2>/dev/null
 PAYLOAD_ORIGINAL=$(ls | sort | perl -le '$r = ""; while(<>){if(/.*\.jpg/){chomp(); $r=$r.$_;}} print $r;')
 if [ "x$PAYLOAD_ORIGINAL" == "x1.jpg2.jpg3.jpg" ]; then
-       echo "The server generated the proper payload: $PAYLOAD_ORIGINAL"
+    echo "The server generated the proper payload: $PAYLOAD_ORIGINAL"
+else
+    exit 100
 fi
 cd ..
  
@@ -73,6 +73,8 @@ cd payload
 tar xf safe.tar 2>/dev/null
 PAYLOAD_ENCRYPTED=$(ls | sort | perl -le '$r = ""; while(<>){if(/.*\.jpg/){chomp(); $r=$r.$_;}} print $r;')
 if [ "x$PAYLOAD_ENCRYPTED" == "x1.jpg2.jpg3.jpg" ]; then
-       echo "The client produced the proper payload: $PAYLOAD_ENCRYPTED"
+    echo "The client produced the proper payload: $PAYLOAD_ENCRYPTED"
+else
+    exit 100
 fi
 cd ..
