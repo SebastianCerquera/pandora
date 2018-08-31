@@ -39,7 +39,8 @@ echo "1234567890" > 2.jpg
 echo "1234567890" > 3.jpg
  
 for i in 1.jpg	2.jpg  3.jpg; do 
-	curl -XPOST -F "file=@$i" -F "fileName=$i"  pandora:8080/v1/problems/$ID/images 2&> /dev/null;
+    curl -XPOST -F "file=@$i" -F "fileName=$i"  pandora:8080/v1/problems/$ID/images;
+    echo $?
 done
  
 echo "This one is yours: $ID"
