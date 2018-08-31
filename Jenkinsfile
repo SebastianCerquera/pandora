@@ -33,6 +33,7 @@ node('docker-agent'){
 	     sh '/usr/bin/docker run -d --name client-jenkins -e JOB_DELAY=60 -e SERVER_ENDPOINT=http://pandora:8080 -e TARGET_FOLDER=/tmp/runs --link server-jenkins:pandora -t pandora/client:stable client;'
 
              echo "Building Test"
+             sh 'sleep 120'
 	     sh 'bash ./integration-docker/build.sh 0.0.1'
 
              echo "Running Test"

@@ -18,9 +18,6 @@ $str = do { local $/; <STDIN> };
 $m = $1 if($str =~ /"modulus":"(\d+)"/);
 $s = $1 if($str =~ /"secret":"(\d+)"/);
 
-print $s;
-print $m;
-
 $r=$m/$s;
 if($r*$s == $m){
     print "You got it bro: " . $r*$s ." == $m";
