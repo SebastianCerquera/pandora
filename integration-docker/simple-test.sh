@@ -4,12 +4,12 @@ set -e
 
 CLIENT_DOCKER=$1
 
-curl localhost:8080/v1/problems
+curl pandora:8080/v1/problems
  
-RAW=$(curl -XPOST localhost:8080/v1/problems/150 2>/dev/null)
+RAW=$(curl -XPOST pandora:8080/v1/problems/150 2>/dev/null)
 ID=$(echo "$RAW" | perl -ne '/\"id\":\s*(\d+)/ && print $1')
  
-KEY=$(curl localhost:8080/v1/problems/$ID 2>/dev/null)
+KEY=$(curl pandora:8080/v1/problems/$ID 2>/dev/null)
 perl -e '
 use bigint;
 
@@ -37,19 +37,19 @@ echo "1234567890" > 2.jpg
 echo "1234567890" > 3.jpg
  
 for i in 1.jpg	2.jpg  3.jpg; do 
-	curl -XPOST -F "file=@$i" -F "fileName=$i"  localhost:8080/v1/problems/$ID/images 2&> /dev/null;
+	curl -XPOST -F "file=@$i" -F "fileName=$i"  pandora:8080/v1/problems/$ID/images 2&> /dev/null;
 done
  
 echo "This one is yours: $ID"
-curl localhost:8080/v1/problems
+curl pandora:8080/v1/problems
 
 COMPLETED=$(echo $RAW | perl -ne 's/"state":"CREATED"/"state":"COMPLETED"/g; print $_')
-curl -XPUT -H 'content-type: application/json' localhost:8080/v1/problems/$ID -d $COMPLETED
+curl -XPUT -H 'content-type: application/json' pandora:8080/v1/problems/$ID -d $COMPLETED
 
-curl localhost:8080/v1/problems/$ID
+curl pandora:8080/v1/problems/$ID
 
 [ -d output ] || mkdir output
-curl localhost:8080/v1/problems/$ID/images -o output/safe.tar 2>/dev/null
+curl pandora:8080/v1/problems/$ID/images -o output/safe.tar 2>/dev/null
  
 cd output
 tar xf safe.tar 2>/dev/null
@@ -61,10 +61,10 @@ cd ..
  
 sleep 300
 
-curl -XDELETE localhost:8080/v1/problems/$ID
+curl -XDELETE pandora:8080/v1/problems/$ID
 
 [ -d payload ] || mkdir payload
-sudo docker cp $CLIENT_DOCKER:/tmp/runs/$ID/safe.tar payload/safe.tar
+docker cp $CLIENT_DOCKER:/tmp/runs/$ID/safe.tar payload/safe.tar
 
 cd payload
 tar xf safe.tar 2>/dev/null
