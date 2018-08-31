@@ -115,13 +115,15 @@ public class ScheduledTasks {
 			return;
 
 		for (String id : problems) {
-			String[] metadata = downloadProblems(instanceProperties.getServerEndpoint() + "/v1/problems/" + id)
-					.split("\n");
+			String raw = downloadProblems(instanceProperties.getServerEndpoint() + "/v1/problems/" + id);
+			RSAProblem problem = new RSAProblem(raw);
 
 			if (this.problems.get(id) == null) {
-				if (metadata[3] == "COMPLETED") {
+				if (problem.getState() == RSAProblem.STATES.COMPLETED) {
 					this.problems.put(id, true);
-					startProblem(id, metadata[1], Long.valueOf(metadata[2]), Long.valueOf(metadata[0]));
+					startProblem(id, problem.getModulus(), Long.valueOf(problem.getSecret()), Long.valueOf(problem.getDelay()));
+				}else {
+					log.error("The problem with code: " + id + "is not ready yet");
 				}
 			} else {
 				log.error("The problem with code: " + id + "has already being used");

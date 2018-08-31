@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -49,6 +50,9 @@ public class RSAController {
 		return "Greetings from Spring Boot!";
 	}
 
+	/*
+	 * TODO to be consistent this shuould produce a json file.
+	 */
 	@GetMapping(value = "/v1/problems", produces = { "plain/text" })
 	public String index() {
 		StringBuilder builder = new StringBuilder();
@@ -59,14 +63,33 @@ public class RSAController {
 		return builder.toString();
 	}
 
+	/*
+	 * It might be that the client syncs the problem before uploading the images
+	 * that compose the problem, the client would downlad an incomplete copy and
+	 * later won't update the value because there is a problem with the id.
+	 * 
+	 * I decided to add a 4th line which tells if the user already uploaded all the
+	 * images tha compose the payload.
+	 */
+	@GetMapping(value = "/v1/problems/{id}", produces = { "application/json" })
+	public RSAProblem key(@PathVariable("id") Long id) {
+		Optional<RSAProblem> problem = repositoryProblem.findById(id);
+		if (problem == Optional.<RSAProblem>empty())
+			throw new IllegalStateException();
+
+		return problem.get();
+	}
+
+	/*
+	 * TODO i wasn't able to user @RequestParam, it calls the service twice.
+	 */
 	@PostMapping(value = "/v1/problems/{delay}", produces = { "application/json" })
-	public String create(@PathVariable("delay") String delay) {
-		/**
-		 * it is missing to generate the RSA key pair, the easiest is to use the bash
-		 * utils.
-		 * 
-		 * i am temporaly hardcoding the values.
+	public RSAProblem create(@PathVariable String delay) {
+		/*
+		 * TODO it is missing to generate the RSA key pair, the easiest is to use the
+		 * bash utils.
 		 */
+
 		ArrayList<String> key = new ArrayList<>();
 		try {
 			Process p = Runtime.getRuntime().exec(properties.getRsagen());
@@ -81,7 +104,16 @@ public class RSAController {
 
 		RSAProblem problem = repositoryProblem.save(new RSAProblem(key.get(0), key.get(1), delay));
 		problem.setState(STATES.CREATED);
-		return "{\"id\": \"" + problem.getId() + "\"}";
+		return problem;
+	}
+
+	@PutMapping(value = "/v1/problems/{id}", consumes = { "application/json" })
+	public void setState(@PathVariable("id") Long id, @RequestBody RSAProblem problem) {
+		Optional<RSAProblem> entity = repositoryProblem.findById(id);
+		if (entity == Optional.<RSAProblem>empty())
+			throw new IllegalStateException("There is no problem with the provided ID");
+		entity.get().setState(problem.getState());
+		repositoryProblem.save(entity.get());
 	}
 
 	@DeleteMapping(value = "/v1/problems/{id}", produces = { "application/json" })
@@ -93,41 +125,9 @@ public class RSAController {
 	}
 
 	/*
-	 * It might be that the client syncs the problem before uploading the images
-	 * that compose the problem, the client would downlad an incomplete copy and
-	 * later won't update the value because there is a problem with the id.
-	 * 
-	 * I decided to add a 4th line which tells if the user already uploaded all the
-	 * images tha compose the payload.
+	 * TODO it should notify the user if trying to download the problem without
+	 * checking that it is already completed.
 	 */
-	@GetMapping(value = "/v1/problems/{id}", produces = { "plain/text" })
-	public String key(@PathVariable("id") Long id) {
-		Optional<RSAProblem> problem = repositoryProblem.findById(id);
-		if (problem == Optional.<RSAProblem>empty())
-			throw new IllegalStateException();
-
-		StringBuilder builder = new StringBuilder();
-		builder.append(problem.get().getDelay());
-		builder.append("\n");
-		builder.append(problem.get().getModulus());
-		builder.append("\n");
-		builder.append(problem.get().getSecret());
-		builder.append("\n");
-		builder.append(problem.get().getState());
-		builder.append("\n");
-
-		return builder.toString();
-	}
-
-	@PutMapping(value = "/v1/problems/{id}", produces = { "plain/text" })
-	public void setState(@RequestParam("state") STATES state, @PathVariable("id") Long id) {
-		Optional<RSAProblem> problem = repositoryProblem.findById(id);
-		if (problem == Optional.<RSAProblem>empty())
-			throw new IllegalStateException();
-
-		problem.get().setState(state);
-	}
-
 	@GetMapping(value = "/v1/problems/{id}/images", produces = { "plain/text" })
 	public byte[] payload(@PathVariable("id") Long id) {
 		Optional<RSAProblem> problem = repositoryProblem.findById(id);

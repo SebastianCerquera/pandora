@@ -1,20 +1,31 @@
 #!/bin/bash
 
+set -e
+
 CLIENT_DOCKER=client-$1
 
 curl localhost:8080/v1/problems
  
 RAW=$(curl -XPOST localhost:8080/v1/problems/150 2>/dev/null)
-ID=$(echo "$RAW" | perl -ne '/\"id\": \"(\d+)\"/ && print $1')
+ID=$(echo "$RAW" | perl -ne '/\"id\":\s*(\d+)/ && print $1')
  
 KEY=$(curl localhost:8080/v1/problems/$ID 2>/dev/null)
 perl -e '
 use bigint;
- 
-@A = <>;
-$r=$A[1]/$A[2];
-if($r*$A[2] == $A[1]){
-    print "You got it bro: ".$A[2]*$r ." == $A[1]";
+
+$str = do { local $/; <STDIN> };
+
+$m = $1 if($str =~ /"modulus":"(\d+)"/);
+$s = $1 if($str =~ /"secret":"(\d+)"/);
+
+print $s;
+print $m;
+
+$r=$m/$s;
+if($r*$s == $m){
+    print "You got it bro: " . $r*$s ." == $m";
+} else {
+  exit(1)
 }
 ' <<EOF
 $KEY
@@ -31,7 +42,12 @@ done
  
 echo "This one is yours: $ID"
 curl localhost:8080/v1/problems
- 
+
+COMPLETED=$(echo $RAW | perl -ne 's/"state":"CREATED"/"state":"COMPLETED"/g; print $_')
+curl -XPUT -H 'content-type: application/json' localhost:8080/v1/problems/$ID -d $COMPLETED
+
+curl localhost:8080/v1/problems/$ID
+
 [ -d output ] || mkdir output
 curl localhost:8080/v1/problems/$ID/images -o output/safe.tar 2>/dev/null
  
