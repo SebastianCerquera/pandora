@@ -8,6 +8,6 @@ COPY entrypoint.sh /opt/entrypoint.sh
 RUN chmod +x /opt/entrypoint.sh 
 
 ## TODO el valor se pasa como una variable de entorno cuando se crea el contenedor, estoy quemando un valor porque no puedo conocer el valor real.
-## WORKDIR /tmp/runs
+WORKDIR /tmp/runs
 
 ENTRYPOINT ["bash", "/opt/entrypoint.sh", "client"]

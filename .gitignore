@@ -1,6 +1,7 @@
 .metadata/
 *#*#
 *.#*
+*~*
 client/.classpath
 client/.project
 client/.settings/
