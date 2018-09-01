@@ -30,6 +30,10 @@ public class RSAProblem {
 		this.modulus = (String) metadata.get("modulus");
 		this.secret =  (String) metadata.get("secret");
 		this.delay =  (String) metadata.get("delay");
+		
+		Object state = metadata.get("state");
+		if (state != null)
+			this.state = STATES.valueOf((String)state);
 	}
 
 	public RSAProblem(String modulus, String secret, String delay) {
