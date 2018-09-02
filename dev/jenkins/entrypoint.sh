@@ -1,20 +1,26 @@
 #!/bin/bash
 
 SECRET=$1
+JENKINS_HOME="/home/jenkins"
 
 if [ -z "$SECRET" ]; then
     echo "You should provide the jenkins secret"
     exit 1
 fi
 
-bash /opt/adduser.sh  jenkins
+bash -x /opt/adduser.sh  jenkins
 
 if [ "$SECRET" == "bash" ]; then
     exec bash
 else
-    cd $HOME
-    wget http://jenkins:8080/jnlpJars/agent.jar
-    [ -d $HOME/remoting ] || mkdir $HOME/remoting
+    su -c "wget http://jenkins:8080/jnlpJars/agent.jar -O /home/jenkins/agent.jar" jenkins
+    
+    if [ ! -d "$JENKINS_HOME/remoting" ]; then
+	mkdir $JENKINS_HOME/remoting
+	chown jenkins:jenkins $JENKINS_HOME/remoting
+    fi
+    
     ## You need to name the agent as docker-agent for this to work.
-    java -jar agent.jar -jnlpUrl http://jenkins:8080/computer/docker-agent/slave-agent.jnlp -secret $SECRET -workDir "/home/jenkins" -failIfWorkDirIsMissing
+    su -c "java -jar agent.jar -jnlpUrl http://jenkins:8080/computer/docker-agent/slave-agent.jnlp -secret $SECRET -workDir /home/jenkins -failIfWorkDirIsMissing" jenkins
+
 fi

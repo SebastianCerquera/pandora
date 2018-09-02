@@ -14,5 +14,4 @@ COPY adduser.sh /opt/adduser.sh
 
 ENTRYPOINT ["/opt/entrypoint.sh"]
 
-USER jenkins
 CMD ["bash"]
