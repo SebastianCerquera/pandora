@@ -2,7 +2,7 @@
 set -x
 
 echo ${USER}
-bash /opt/adduser.sh ${USER} pandora
+bash /opt/adduser.sh ${USER} ${USER}
 
 if [ $1 == "bash" ]; then
     exec bash

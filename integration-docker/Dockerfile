@@ -1,5 +1,6 @@
 FROM pandora/dev:0.0.1
 
+ENV  USER      pandora
 USER root
 
 RUN mkdir /opt/integration

@@ -3,7 +3,7 @@
 set -e
 
 echo ${USER}
-bash /opt/adduser.sh ${USER} pandora
+bash /opt/adduser.sh ${USER} ${USER}
 
 if [ "$1" == "test" ]; then
     mkdir /tmp/test && cd /tmp/test
