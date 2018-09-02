@@ -3,12 +3,14 @@
 NEW_USER=$1
 JENKINS_USER=$2
 
-useradd $NEW_USER
+useradd $NEW_USER 
 echo "$NEW_USER:$NEW_USER" | chpasswd
 
 mkdir /home/$NEW_USER
 mkdir /home/$NEW_USER/.local
 chown -R $NEW_USER:$NEW_USER /home/$NEW_USER
+
+chown $NEW_USER:$NEW_USER /opt
 
 SGID=$(ls -all /var/run/docker.sock | awk '{print $4}' | perl -ne '/(.*)\n/ && print $1')
 FGID=$(cat /etc/group | perl -ne '/docker:x:(\d+):/ && print $1')

@@ -3,7 +3,7 @@
 set -e
 
 if [ "$1" == "client" ]; then
-    java -DserverEndpoint=$SERVER_ENDPOINT -DtargetFolder=$TARGET_FOLDER -DjobDelay=$JOB_DELAY  -jar /opt/client.jar
+    java -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8000 -DserverEndpoint=$SERVER_ENDPOINT -DtargetFolder=$TARGET_FOLDER -DjobDelay=$JOB_DELAY  -jar /opt/client.jar
 else
     exec "$@"
 fi
