@@ -13,8 +13,7 @@ WORKDIR /opt
 RUN wget ${ECLIPSE_STS} -O eclipse.tar.gz && tar xf eclipse.tar.gz && update-alternatives --install /usr/bin/eclipse eclipse /opt/sts-bundle/sts-3.9.5.RELEASE/STS 1000 && rm /opt/eclipse.tar.gz
 
 COPY adduser.sh /opt/adduser.sh
-RUN bash adduser.sh ${USER}
-RUN usermod -aG docker ${USER}
+RUN bash adduser.sh ${USER} pandora
 
 COPY entrypoint.sh /opt/entrypoint.sh
 

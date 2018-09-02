@@ -10,8 +10,10 @@ RUN apt-get update && apt-get install -y docker-ce
 COPY entrypoint.sh /opt/entrypoint.sh
 RUN chmod +x /opt/entrypoint.sh
 
+COPY adduser.sh /opt/adduser.sh
+RUN bash adduser.sh ${USER} jenkins
+
 ENTRYPOINT ["/opt/entrypoint.sh"]
 
-RUN usermod -aG docker jenkins
 USER jenkins
 CMD ["bash"]
