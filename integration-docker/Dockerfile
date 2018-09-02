@@ -12,5 +12,5 @@ RUN chmod +x /opt/integration/simple-test.sh
 COPY entrypoint.sh /opt/integration/entrypoint.sh
 RUN chmod +x /opt/integration/entrypoint.sh
 
-ENTRYPOINT ["bash", "/opt/integration/entrypoint.sh"]
+ENTRYPOINT ["bash", "-x", "/opt/integration/entrypoint.sh"]
 CMD ["test"]
