@@ -1,12 +1,16 @@
 FROM pandora/dev:0.0.1
 
 USER root
-COPY simple-test.sh /opt/simple-test.sh
-RUN chmod +x /opt/simple-test.sh
 
-COPY entrypoint.sh /opt/entrypoint.sh
-RUN chmod +x /opt/entrypoint.sh
+RUN mkdir /opt/integration
+
+COPY simple-test.sh /opt/integration/simple-test.sh
+RUN chmod +x /opt/integration/simple-test.sh
+
+
+COPY entrypoint.sh /opt/integration/entrypoint.sh
+RUN chmod +x /opt/integration/entrypoint.sh
 
 USER ${USER}
-ENTRYPOINT ["bash", "/opt/entrypoint.sh"]
+ENTRYPOINT ["bash", "/opt/integration/entrypoint.sh"]
 CMD ["test"]
