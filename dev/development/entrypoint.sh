@@ -1,6 +1,9 @@
 #!/bin/bash
 set -x
 
+echo ${USER}
+bash /opt/adduser.sh ${USER} pandora
+
 if [ $1 == "bash" ]; then
     exec bash
 elif [ $1 == "compile" ]; then

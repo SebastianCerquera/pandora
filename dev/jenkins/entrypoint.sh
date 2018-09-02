@@ -7,6 +7,8 @@ if [ -z "$SECRET" ]; then
     exit 1
 fi
 
+bash /opt/adduser.sh  jenkins
+
 if [ "$SECRET" == "bash" ]; then
     exec bash
 else
