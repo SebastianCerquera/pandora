@@ -19,7 +19,7 @@ node('docker-agent'){
          ]);
 	script {
              sh 'find ./ -type f -iname "*.sh" -exec chmod +x {} \\;'
-             sh 'chmod jenkins:jenkins -R .'
+             sh 'chown jenkins:jenkins -R .'
 
              echo "Building Dev"
              sh 'bash ./dev/development/build.sh 0.0.1'
