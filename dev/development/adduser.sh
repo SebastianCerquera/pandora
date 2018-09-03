@@ -23,7 +23,7 @@ FGID=$(cat /etc/group | perl -ne '/docker:x:(\d+):/ && print $1')
 if [ ! -z "$FGID" ]; then
      SGID=$(ls -all /var/run/docker.sock | awk '{print $4}' | perl -ne '/(.*)\n/ && print $1')
       
-     if [ "$FGID" != "$SGID" ]; then
+     if [ "$FGID" != "$SGID" ] -a [ "$SGID" != "docker" ]; then
          perl -pi -e 's/docker:x:'"$FGID"':(.*)\n/docker:x:'"$SGID"':$1\n/g' /etc/group
      fi
 

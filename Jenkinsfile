@@ -22,26 +22,26 @@ node('docker-agent'){
              sh 'chmod 777 -R .'
 
              echo "Building Dev"
-             sh 'bash ./dev/development/build.sh 0.0.4'
+             sh 'bash ./dev/development/build.sh 0.0.5'
              
              echo "Building Server"
-             sh 'bash ./server-docker/build.sh 0.0.4'
+             sh 'bash ./server-docker/build.sh 0.0.5'
 
              echo "Building Client"
-             sh 'bash ./client-docker/build.sh 0.0.4'
+             sh 'bash ./client-docker/build.sh 0.0.5'
 
              echo "Deploying Server";
              sh '/usr/bin/docker run -d --name server-jenkins -e RSAGEN=/opt/rsagen.sh -t pandora/server:stable server;'
 
              echo "Deploying Client";
 	     sh '/usr/bin/docker run -d --name client-jenkins -e JOB_DELAY=60 -e SERVER_ENDPOINT=http://pandora:8080 -e TARGET_FOLDER=/tmp/runs --link server-jenkins:pandora -t pandora/client:stable client;'
-
+             
              echo "Building Test"
-             sh 'sleep 60'
-	     sh 'bash ./integration-docker/build.sh 0.0.4'
+	     sh 'bash ./integration-docker/build.sh 0.0.5'
 
              echo "Running Test"
-	     sh '/usr/bin/docker run --rm -v /var/run/docker.sock:/var/run/docker.sock --link server-jenkins:pandora -t pandora/test:0.0.4 test'
+             sh 'sleep 60'
+	     sh '/usr/bin/docker run --rm -v /var/run/docker.sock:/var/run/docker.sock --link server-jenkins:pandora -t pandora/test:0.0.5 test'
 
              echo "Destroying Server";
 	     sh '/usr/bin/docker stop server-jenkins;'
