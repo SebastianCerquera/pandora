@@ -22,13 +22,13 @@ node('docker-agent'){
              sh 'chmod 777 -R .'
 
              echo "Building Dev"
-             sh 'bash ./dev/development/build.sh 0.0.1'
+             sh 'bash ./dev/development/build.sh 0.0.3'
              
              echo "Building Server"
-             sh 'bash ./server-docker/build.sh 0.0.1'
+             sh 'bash ./server-docker/build.sh 0.0.3'
 
              echo "Building Client"
-             sh 'bash ./client-docker/build.sh 0.0.1'
+             sh 'bash ./client-docker/build.sh 0.0.3'
 
              sh 'chmod 777 -R .'
 
@@ -40,10 +40,10 @@ node('docker-agent'){
 
              echo "Building Test"
              sh 'sleep 60'
-	     sh 'bash ./integration-docker/build.sh 0.0.1'
+	     sh 'bash ./integration-docker/build.sh 0.0.4'
 
              echo "Running Test"
-	     sh '/usr/bin/docker run --rm -v /var/run/docker.sock:/var/run/docker.sock --link server-jenkins:pandora -t thepandorasys/test:0.0.2 test'
+	     sh '/usr/bin/docker run --rm -v /var/run/docker.sock:/var/run/docker.sock --link server-jenkins:pandora -t thepandorasys/test:0.0.4 test'
 
              echo "Destroying Server";
 	     sh '/usr/bin/docker stop server-jenkins;'

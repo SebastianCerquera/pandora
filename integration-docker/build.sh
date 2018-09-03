@@ -2,7 +2,7 @@
 
 set -e
 
-DEV_VERSION=0.0.2
+DEV_VERSION=$1
 BASE=$(pwd)
 
 cd $BASE/integration-docker
