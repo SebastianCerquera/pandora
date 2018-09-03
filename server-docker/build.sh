@@ -6,11 +6,8 @@ DEV_VERSION=$1
 BASE=$(pwd)
 SOURCE_PATH=server/complete
 
-cd $BASE/dev/development
-docker build -t pandora/dev:$DEV_VERSION .
-
 SCM=$(basename $BASE)
-chmod 777 $BASE/$SOURCE_PATH
+chmod -R jenkins:jenkins $BASE/$SOURCE_PATH
 docker run --rm -v mvn-cache:/home/pandora/.m2/ -v jenkins-source:/home/pandora/workspace -t pandora/dev:$DEV_VERSION compile $SCM/$SOURCE_PATH
 
 cd $BASE/$SOURCE_PATH
