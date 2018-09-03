@@ -1,4 +1,4 @@
-FROM pandora/dev:0.0.1
+FROM thepandorasys/dev:0.0.2
 
 ENV  USER      pandora
 USER root
