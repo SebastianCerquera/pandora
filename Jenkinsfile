@@ -30,8 +30,6 @@ node('docker-agent'){
              echo "Building Client"
              sh 'bash ./client-docker/build.sh 0.0.3'
 
-             sh 'chmod 777 -R .'
-
              echo "Deploying Server";
              sh '/usr/bin/docker run -d --name server-jenkins -e RSAGEN=/opt/rsagen.sh -t pandora/server:stable server;'
 
