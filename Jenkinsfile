@@ -56,7 +56,7 @@ node('docker-agent'){
              sh 'bash ./server-docker/push.sh'
 	     sh 'bash ./client-docker/push.sh'
 
-             sh 'chmod 777 -R .'
+             sh 'rm -rf *'
          };
      };
 }
