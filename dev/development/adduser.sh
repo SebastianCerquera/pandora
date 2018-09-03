@@ -19,7 +19,6 @@ chown $NEW_USER:$NEW_USER /opt
 
 FGID=$(cat /etc/group | perl -ne '/docker:x:(\d+):/ && print $1')
 
-
 if [ ! -z "$FGID" ]; then
      SGID=$(ls -all /var/run/docker.sock | awk '{print $4}' | perl -ne '/(.*)\n/ && print $1')
       
