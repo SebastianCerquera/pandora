@@ -19,7 +19,7 @@ elif [ $1 == "compile" ]; then
     cd $SCM
     su -c "mvn clean install" ${USER}
 
-    chmod 777 -R $SCM
+    chmod 777 -R .
 else
     exec "$@"
 fi           
