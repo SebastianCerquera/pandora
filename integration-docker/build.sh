@@ -6,4 +6,4 @@ DEV_VERSION=$1
 BASE=$(pwd)
 
 cd $BASE/integration-docker
-docker build -t thepandorasys/test:$DEV_VERSION .
+docker build -t pandora/test:$DEV_VERSION .

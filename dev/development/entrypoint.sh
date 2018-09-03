@@ -1,12 +1,12 @@
 #!/bin/bash
 set -x
 
-echo ${USER}
-bash /opt/adduser.sh ${USER} ${USER}
-
 if [ $1 == "bash" ]; then
     exec bash
 elif [ $1 == "compile" ]; then
+    echo ${USER}
+    bash /opt/adduser.sh ${USER} ${USER}
+    
     cd /home/pandora/workspace
 
     SCM=$2

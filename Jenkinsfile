@@ -41,7 +41,7 @@ node('docker-agent'){
 	     sh 'bash ./integration-docker/build.sh 0.0.4'
 
              echo "Running Test"
-	     sh '/usr/bin/docker run --rm -v /var/run/docker.sock:/var/run/docker.sock --link server-jenkins:pandora -t thepandorasys/test:0.0.4 test'
+	     sh '/usr/bin/docker run --rm -v /var/run/docker.sock:/var/run/docker.sock --link server-jenkins:pandora -t pandora/test:0.0.4 test'
 
              echo "Destroying Server";
 	     sh '/usr/bin/docker stop server-jenkins;'
