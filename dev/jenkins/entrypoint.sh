@@ -10,7 +10,7 @@ fi
 
 bash -x /opt/adduser.sh  jenkins
 
-bash /opt/permissions-daemon.sh $JENKINS_HOME/workspace
+bash /opt/permissions-daemon.sh $JENKINS_HOME/workspace &
 
 if [ "$SECRET" == "bash" ]; then
     exec bash
