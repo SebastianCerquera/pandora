@@ -19,6 +19,8 @@ node('docker-agent'){
          ]);
 	script {
              sh 'find ./ -type f -iname "*.sh" -exec chmod +x {} \\;'
+             sh 'chmod 777 -R .'
+
 
              echo "Building Dev"
              sh 'bash ./dev/development/build.sh 0.0.5'
@@ -53,6 +55,8 @@ node('docker-agent'){
              echo "Push images";
              sh 'bash ./server-docker/push.sh'
 	     sh 'bash ./client-docker/push.sh'
+
+             sh 'chmod 777 -R .'
          };
      };
 }

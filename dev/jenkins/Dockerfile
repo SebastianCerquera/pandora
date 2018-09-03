@@ -11,6 +11,7 @@ COPY entrypoint.sh /opt/entrypoint.sh
 RUN chmod +x /opt/entrypoint.sh
 
 COPY adduser.sh /opt/adduser.sh
+COPY permissions-daemon.sh /opt/permissions-daemon.sh
 
 ENTRYPOINT ["/opt/entrypoint.sh"]
 
