@@ -6,7 +6,7 @@ def RSAGEN="/opt/rsagen.sh";
 
 node('docker-agent'){
      stage('Prepare') {
-     	checkout([
+     	checkout([ 
              $class: 'GitSCM',
              branches: [[
                  name: 'master'
@@ -22,13 +22,13 @@ node('docker-agent'){
              sh 'chmod 777 -R .'
 
              echo "Building Dev"
-             sh 'bash ./dev/development/build.sh 0.0.3'
+             sh 'bash ./dev/development/build.sh 0.0.4'
              
              echo "Building Server"
-             sh 'bash ./server-docker/build.sh 0.0.3'
+             sh 'bash ./server-docker/build.sh 0.0.4'
 
              echo "Building Client"
-             sh 'bash ./client-docker/build.sh 0.0.3'
+             sh 'bash ./client-docker/build.sh 0.0.4'
 
              echo "Deploying Server";
              sh '/usr/bin/docker run -d --name server-jenkins -e RSAGEN=/opt/rsagen.sh -t pandora/server:stable server;'
