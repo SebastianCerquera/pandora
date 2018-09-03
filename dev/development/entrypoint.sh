@@ -17,7 +17,6 @@ elif [ $1 == "compile" ]; then
     fi
 
     cd $SCM
-    chown -R ${USER}:${USER} .
     su -c "mvn clean install" ${USER}
 else
     exec "$@"

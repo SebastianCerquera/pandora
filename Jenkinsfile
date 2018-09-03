@@ -19,7 +19,7 @@ node('docker-agent'){
          ]);
 	script {
              sh 'find ./ -type f -iname "*.sh" -exec chmod +x {} \\;'
-             sh 'chown jenkins:jenkins -R .'
+             sh 'chmod 777 -R .'
 
              echo "Building Dev"
              sh 'bash ./dev/development/build.sh 0.0.1'
@@ -29,6 +29,8 @@ node('docker-agent'){
 
              echo "Building Client"
              sh 'bash ./client-docker/build.sh 0.0.1'
+
+             sh 'chmod 777 -R .'
 
              echo "Deploying Server";
              sh '/usr/bin/docker run -d --name server-jenkins -e RSAGEN=/opt/rsagen.sh -t pandora/server:stable server;'
