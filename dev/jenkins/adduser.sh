@@ -2,9 +2,9 @@
 
 JENKINS_USER=$1
 
-UID=$(cat /etc/passwd | perl -lane '@F = split(":", $_); print $F[2] if($F[0] =~ "'"$JENKINS_USER"'")')
+MYUID=$(cat /etc/passwd | perl -lane '@F = split(":", $_); print $F[2] if($F[0] =~ "'"$JENKINS_USER"'")')
 
-if [ -z "$UID" ]; then
+if [ -z "$MYUID" ]; then
      useradd $JENKINS_USER
      echo "$JENKINS_USER:$JENKINS_USER" | chpasswd
       

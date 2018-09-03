@@ -3,9 +3,9 @@
 NEW_USER=$1
 JENKINS_USER=$2
 
-UID=$(cat /etc/passwd | perl -lane '@F = split(":", $_); print $F[2] if($F[0] =~ "'"$NEW_USER"'")')
+MYUID=$(cat /etc/passwd | perl -lane '@F = split(":", $_); print $F[2] if($F[0] =~ "'"$NEW_USER"'")')
 
-if [ -z "$UID" ]; then
+if [ -z "$MYUID" ]; then
      useradd $NEW_USER 
      echo "$NEW_USER:$NEW_USER" | chpasswd
       
