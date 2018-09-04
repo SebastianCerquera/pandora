@@ -77,6 +77,8 @@ public class RSAController {
 		if (problem == Optional.<RSAProblem>empty())
 			throw new IllegalStateException();
 
+		problem.get().setImages(null);
+
 		return problem.get();
 	}
 
