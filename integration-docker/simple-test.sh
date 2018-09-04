@@ -29,9 +29,9 @@ $KEY
 EOF
  
 touch 1.jpg 2.jpg 3.jpg
-echo "1234567890" > 1.jpg
-echo "1234567890" > 2.jpg
-echo "1234567890" > 3.jpg
+dd if=/dev/zero of=1.jpg count=10 bs=1M
+dd if=/dev/zero of=2.jpg count=10 bs=1M
+dd if=/dev/zero of=3.jpg count=10 bs=1M
  
 for i in 1.jpg	2.jpg  3.jpg; do 
     curl -XPOST -F "file=@$i" -F "fileName=$i"  pandora:8080/v1/problems/$ID/images;
