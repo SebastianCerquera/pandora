@@ -22,7 +22,16 @@ else
 	chown jenkins:jenkins $JENKINS_HOME/remoting
     fi
     
-    ## You need to name the agent as docker-agent for this to work.
-    su -c "java -jar agent.jar -jnlpUrl http://jenkins:8080/computer/docker-agent/slave-agent.jnlp -secret $SECRET -workDir /home/jenkins -failIfWorkDirIsMissing" jenkins
+    if [ ! -d "$JENKINS_HOME/workspace" ]; then
+	mkdir $JENKINS_HOME/workspace
+	chown jenkins:jenkins $JENKINS_HOME/workspace
+    fi
+
+    ## The deaault agent is named docker-agent
+    if [ -z "${AGENT_NAME}" ]; then
+	AGENT_NAME="docker-agent"
+    fi
+
+    su -c "java -jar agent.jar -jnlpUrl http://jenkins:8080/computer/$AGENT_NAME/slave-agent.jnlp -secret $SECRET -workDir /home/jenkins -failIfWorkDirIsMissing" jenkins
 
 fi
