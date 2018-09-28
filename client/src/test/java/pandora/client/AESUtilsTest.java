@@ -12,7 +12,7 @@ import javax.crypto.NoSuchPaddingException;
 import org.junit.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import pandora.client.AESUtils;
+import pandora.client.utils.AESUtils;
 
 @SpringBootTest
 public class AESUtilsTest {

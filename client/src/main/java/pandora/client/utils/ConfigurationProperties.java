@@ -1,4 +1,4 @@
-package pandora.client;
+package pandora.client.utils;
 
 import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Value;

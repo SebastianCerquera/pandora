@@ -15,6 +15,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.SchedulingConfigurer;
 import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 
+import pandora.client.utils.ConfigurationProperties;
+
 @Configuration
 @EnableScheduling
 public class CustomScheduler implements SchedulingConfigurer {
