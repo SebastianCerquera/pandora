@@ -28,8 +28,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import org.springframework.web.multipart.MultipartFile;
 
-import pandora.server.ConfigurationProperties;
-import pandora.server.RSAProblem.STATES;
+import pandora.server.conf.ConfigurationProperties;
+import pandora.server.conf.RSAPayloadRepository;
+import pandora.server.conf.RSAProblemRepository;
+import pandora.server.model.RSAPayload;
+import pandora.server.model.RSAProblem;
+import pandora.server.model.RSAProblem.STATES;
 
 @RestController
 public class RSAController {

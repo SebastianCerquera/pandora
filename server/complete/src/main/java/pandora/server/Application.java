@@ -7,6 +7,9 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
+import pandora.server.conf.RSAProblemRepository;
+import pandora.server.model.RSAProblem;
+
 @SpringBootApplication
 public class Application {
 

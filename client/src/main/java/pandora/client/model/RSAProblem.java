@@ -1,40 +1,47 @@
-package pandora.server;
+package pandora.client.model;
 
 import java.util.List;
+import java.util.Map;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import org.springframework.boot.json.JsonParser;
+import org.springframework.boot.json.JsonParserFactory;
 
-@Entity
 public class RSAProblem {
 
-	@Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
 	private Long id;
-	
+
 	private String modulus;
-	
+
 	private String secret;
-	
+
 	private String delay;
-	
+
 	private STATES state;
 
-	@OneToMany(cascade=CascadeType.REMOVE)
 	private List<RSAPayload> images;
-	
-	protected RSAProblem() {}
-	
+
+	protected RSAProblem() {
+	}
+
+	public RSAProblem(String raw) {
+		JsonParser parser = JsonParserFactory.getJsonParser();
+		Map<String, Object> metadata =  parser.parseMap(raw.replace("\\\"", "\""));
+		
+		this.modulus = (String) metadata.get("modulus");
+		this.secret =  (String) metadata.get("secret");
+		this.delay =  (String) metadata.get("delay");
+		
+		Object state = metadata.get("state");
+		if (state != null)
+			this.state = STATES.valueOf((String)state);
+	}
+
 	public RSAProblem(String modulus, String secret, String delay) {
 		this.modulus = modulus;
 		this.secret = secret;
 		this.delay = delay;
 	}
-	
+
 	public Long getId() {
 		return id;
 	}
@@ -66,7 +73,7 @@ public class RSAProblem {
 	public void setDelay(String delay) {
 		this.delay = delay;
 	}
-	
+
 	public List<RSAPayload> getImages() {
 		return images;
 	}
@@ -74,7 +81,7 @@ public class RSAProblem {
 	public void setImages(List<RSAPayload> images) {
 		this.images = images;
 	}
-	
+
 	public STATES getState() {
 		return state;
 	}
@@ -93,9 +100,9 @@ public class RSAProblem {
 		builder.append(">");
 		return builder.toString();
 	}
-	
+
 	public static enum STATES {
 		CREATED, IN_PROGESS, COMPLETED
 	}
-	
+
 }

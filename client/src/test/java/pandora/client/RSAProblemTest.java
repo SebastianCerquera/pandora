@@ -5,6 +5,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import pandora.client.model.RSAProblem;
+
 @SpringBootTest
 public class RSAProblemTest {
 

@@ -1,4 +1,4 @@
-package pandora.client;
+package pandora.client.utils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;

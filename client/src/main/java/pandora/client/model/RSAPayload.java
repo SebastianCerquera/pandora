@@ -1,4 +1,4 @@
-package pandora.client;
+package pandora.client.model;
 
 public class RSAPayload {
 

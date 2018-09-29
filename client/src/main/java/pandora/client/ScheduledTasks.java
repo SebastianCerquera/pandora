@@ -20,6 +20,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pandora.client.model.RSAProblem;
+import pandora.client.utils.AESUtils;
+import pandora.client.utils.ConfigurationProperties;
+import pandora.client.utils.FileUtils;
+
 @Component
 public class ScheduledTasks {
 
