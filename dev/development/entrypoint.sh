@@ -21,5 +21,8 @@ elif [ $1 == "compile" ]; then
 
     chmod 777 -R .
 else
-    exec "$@"
+    echo ${USER}
+    bash /opt/adduser.sh ${USER} ${USER}
+    
+    exec su -c "$@" ${USER}
 fi           

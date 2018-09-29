@@ -1,4 +1,4 @@
-package pandora.server;
+package pandora.server.model;
 
 import java.util.List;
 
