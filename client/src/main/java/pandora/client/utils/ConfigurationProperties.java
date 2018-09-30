@@ -19,6 +19,13 @@ public class ConfigurationProperties {
 	@Value("${jobDelay}")
 	String jobDelay;
 	
+	@Value("${spring.profiles.active}")
+	String profile;
+	
+	public String getProfile() {
+		return profile;
+	}
+	
 	public String getJobDelay() {
 		return jobDelay;
 	}

@@ -1,20 +1,17 @@
 package pandora.client;
 
-import java.io.IOException;
-import java.util.Scanner;
-
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.client.RestTemplate;
 
-import pandora.client.model.PandoraClient;
 import pandora.client.utils.ConfigurationProperties;
+import pandora.client.utils.RegisterHelper;
+import pandora.client.utils.RegisterHelperDummy;
+import pandora.client.utils.RegisterHelperServer;
 
 @SpringBootApplication
 @EnableScheduling
@@ -25,23 +22,18 @@ public class Application {
 	}
 
 	@Bean
-	public CommandLineRunner setup(RestTemplate template, ConfigurationProperties instanceProperties) {
+	public RestTemplate restTemplate(RestTemplateBuilder builder) {
+		return builder.build();
+	}
+
+	@Bean
+	public CommandLineRunner setup(ConfigurationProperties properties,
+			RegisterHelperDummy registerDummy,
+			RegisterHelperServer registerServer) {
 		return (args) -> {
-			String hostname = execReadToString("cat /etc/hostname");
-
-			PandoraClient client = new PandoraClient(hostname);
-
-			HttpHeaders headers = new HttpHeaders();
-			headers.setContentType(MediaType.APPLICATION_JSON);
-
-			HttpEntity<PandoraClient> entity = new HttpEntity<PandoraClient>(client, headers);
-			template.postForEntity(instanceProperties.getServerEndpoint() + "/v1/clients", entity, Void.class);
+			RegisterHelper register = properties.getProfile().equals("development") ? registerDummy : registerServer;
+			register.register();
 		};
 	}
 
-	public static String execReadToString(String execCommand) throws IOException {
-		try (Scanner s = new Scanner(Runtime.getRuntime().exec(execCommand).getInputStream()).useDelimiter("\\A")) {
-			return s.hasNext() ? s.next() : "";
-		}
-	}
 }
