@@ -24,8 +24,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import pandora.client.ConfigurationProperties;
 import pandora.client.ScheduledTasks;
+import pandora.client.utils.ConfigurationProperties;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(properties = { "serverEndpoint=http://qanomads.com", "targetFolder=/opt/pandora", "test=abcde" })

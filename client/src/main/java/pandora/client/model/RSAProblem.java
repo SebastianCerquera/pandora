@@ -1,4 +1,4 @@
-package pandora.client;
+package pandora.client.model;
 
 import java.util.List;
 import java.util.Map;
