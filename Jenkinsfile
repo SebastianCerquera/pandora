@@ -35,6 +35,7 @@ node('docker-agent'){
              sh '/usr/bin/docker run -d --name server-jenkins -e RSAGEN=/opt/rsagen.sh -t pandora/server:stable server;'
 
              echo "Deploying Client";
+	     sh 'sleep 60'
 	     sh '/usr/bin/docker run -d --name client-jenkins -e JOB_DELAY=60 -e PROFILE=default -e SERVER_ENDPOINT=http://pandora:8080 -e TARGET_FOLDER=/tmp/runs --link server-jenkins:pandora -t pandora/client:stable client;'
              
              echo "Building Test"
