@@ -14,7 +14,7 @@ node('docker-agent'){
              doGenerateSubmoduleConfigurations: false,
              submoduleCfg: [],
              userRemoteConfigs: [[
-                 url: 'https://github.com/SebastianCerquera/pandora.git'
+                 url: 'git@192.168.3.102:/git/pandora'
              ]]
          ]);
 	script {
