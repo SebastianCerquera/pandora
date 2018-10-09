@@ -1,6 +1,7 @@
 package pandora.server.model;
 
-import java.util.List;
+import java.io.Serializable;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -9,7 +10,13 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import lombok.Getter;
+import lombok.Setter;
+
 @Entity
+@Getter @Setter
 public class PandoraClient {
 
 	@Id
@@ -22,45 +29,14 @@ public class PandoraClient {
 	private STATES state;
 
 	@OneToMany
-	private List<RSAProblem> problems;
+	@JsonIgnore
+	private Set<RSAProblem> problems;
 	
 	protected PandoraClient() {}
 	
 	public PandoraClient(String hostname) {
 		this.hostname = hostname;
 		this.state = STATES.HEALTHY;
-	}
-	
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-	
-	public String getHostname() {
-		return hostname;
-	}
-
-	public void setHostname(String hostname) {
-		this.hostname = hostname;
-	}
-
-	public List<RSAProblem> getProblems() {
-		return problems;
-	}
-
-	public void setProblems(List<RSAProblem> images) {
-		this.problems = images;
-	}
-
-	public STATES getState() {
-		return state;
-	}
-
-	public void setState(STATES state) {
-		this.state = state;
 	}
 
 	@Override

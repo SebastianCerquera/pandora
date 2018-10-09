@@ -1,4 +1,4 @@
-package pandora.server.conf;
+package pandora.server.repository;
 
 import org.springframework.data.repository.CrudRepository;
 
