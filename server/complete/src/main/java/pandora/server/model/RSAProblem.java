@@ -1,6 +1,7 @@
 package pandora.server.model;
 
-import java.util.List;
+import java.io.Serializable;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -9,8 +10,16 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 
+import lombok.Getter;
+import lombok.Setter;
+
 @Entity
-public class RSAProblem {
+@Setter
+@Getter
+public class RSAProblem implements Serializable {
+
+
+	private static final long serialVersionUID = 1L;
 
 	@Id
     @GeneratedValue(strategy=GenerationType.AUTO)
@@ -25,7 +34,7 @@ public class RSAProblem {
 	private STATES state;
 
 	@OneToMany(cascade=CascadeType.REMOVE)
-	private List<RSAPayload> images;
+	private Set<RSAPayload> images;
 	
 	protected RSAProblem() {}
 	
@@ -33,54 +42,6 @@ public class RSAProblem {
 		this.modulus = modulus;
 		this.secret = secret;
 		this.delay = delay;
-	}
-	
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public String getModulus() {
-		return modulus;
-	}
-
-	public void setModulus(String modulus) {
-		this.modulus = modulus;
-	}
-
-	public String getSecret() {
-		return secret;
-	}
-
-	public void setSecret(String secret) {
-		this.secret = secret;
-	}
-
-	public String getDelay() {
-		return delay;
-	}
-
-	public void setDelay(String delay) {
-		this.delay = delay;
-	}
-	
-	public List<RSAPayload> getImages() {
-		return images;
-	}
-
-	public void setImages(List<RSAPayload> images) {
-		this.images = images;
-	}
-	
-	public STATES getState() {
-		return state;
-	}
-
-	public void setState(STATES state) {
-		this.state = state;
 	}
 
 	@Override

@@ -1,6 +1,4 @@
-package pandora.server;
-
-import org.springframework.web.bind.annotation.RestController;
+package pandora.server.controller;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -8,8 +6,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.kamranzafar.jtar.TarEntry;
 import org.kamranzafar.jtar.TarHeader;
@@ -23,17 +21,16 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import pandora.server.conf.ConfigurationProperties;
-import pandora.server.conf.RSAPayloadRepository;
-import pandora.server.conf.RSAProblemRepository;
 import pandora.server.model.RSAPayload;
 import pandora.server.model.RSAProblem;
 import pandora.server.model.RSAProblem.STATES;
+import pandora.server.repository.RSAPayloadRepository;
+import pandora.server.repository.RSAProblemRepository;
 
 @RestController
 public class RSAController {
@@ -48,11 +45,7 @@ public class RSAController {
 
 	@Autowired
 	RSAPayloadRepository repositoryPayload;
-
-	@RequestMapping("/")
-	public String root() {
-		return "Greetings from Spring Boot!";
-	}
+	
 
 	/*
 	 * TODO to be consistent this shuould produce a json file.
@@ -140,7 +133,7 @@ public class RSAController {
 		if (problem == Optional.<RSAProblem>empty())
 			throw new IllegalStateException();
 
-		List<RSAPayload> images = problem.get().getImages();
+		Set<RSAPayload> images = problem.get().getImages();
 
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 
