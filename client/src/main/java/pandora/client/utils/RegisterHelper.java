@@ -4,4 +4,5 @@ import java.io.IOException;
 
 public interface RegisterHelper {
 	String register()  throws IOException ;
+	String unregister()  throws IOException ;
 }

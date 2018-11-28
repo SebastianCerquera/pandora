@@ -12,4 +12,9 @@ public class RegisterHelperDummy implements RegisterHelper{
 		return "HOSTNAME";
 	}
 
+	@Override
+	public String unregister() throws IOException {
+		return "HOSTNAME";
+	}
+
 }

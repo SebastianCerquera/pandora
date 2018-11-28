@@ -42,6 +42,13 @@ public class RegisterHelperServer implements RegisterHelper {
 		return hostname;
 	}
 	
+
+	@Override
+	public String unregister() throws IOException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
 	private String getHostname(String amazonMetadata) {
 		byte[] payload = null;
 

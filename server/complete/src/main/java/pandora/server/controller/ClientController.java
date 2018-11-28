@@ -28,6 +28,11 @@ public class ClientController {
 	public ResponseEntity<List<PandoraClientDTO>> index() {
 		return new ResponseEntity<>(pandoraService.findAll(),HttpStatus.OK);
 	}
+	
+	@GetMapping(value = "/clients/{hostname}")
+	public ResponseEntity<PandoraClientDTO> getByHostname(@PathVariable("hostname") String hostname) {
+		return new ResponseEntity<>(pandoraService.findAll(),HttpStatus.OK);
+	}
 
 	@PutMapping(value = "/clients")
 	public ResponseEntity<PandoraClientDTO> update(@RequestBody PandoraClientDTO pandoraClientDTO) {

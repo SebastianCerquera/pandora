@@ -1,5 +1,7 @@
 package pandora.client;
 
+import javax.annotation.PreDestroy;
+
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -27,13 +29,24 @@ public class Application {
 	}
 
 	@Bean
-	public CommandLineRunner setup(ConfigurationProperties properties,
-			RegisterHelperDummy registerDummy,
+	public CommandLineRunner setup(ConfigurationProperties properties, RegisterHelperDummy registerDummy,
 			RegisterHelperServer registerServer) {
 		return (args) -> {
 			RegisterHelper register = properties.getProfile().equals("development") ? registerDummy : registerServer;
 			register.register();
 		};
+	}
+
+	@PreDestroy
+	public void unregisterClient() {
+		log.info("###STOPing###");
+		try {
+			Thread.sleep(5 * 1000);
+		} catch (InterruptedException e) {
+			log.error("", e);
+			;
+		}
+		log.info("###STOP FROM THE LIFECYCLE###");
 	}
 
 }

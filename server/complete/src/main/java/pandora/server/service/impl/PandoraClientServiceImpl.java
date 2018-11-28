@@ -55,6 +55,11 @@ public class PandoraClientServiceImpl implements PandoraService {
 
 		return mapService.map(client, PandoraClientDTO.class);		
 	}
+	
+	@Override
+	public PandoraClientDTO findByHostname(String hostname) {
+		return mapService.map(findByHostName(hostname), PandoraClientDTO.class);
+	}
 
 	private Set<RSAProblem> refreshClientProblems(PandoraClient pandoraClient) {
 		return pandoraClient.getProblems().stream()
@@ -63,8 +68,12 @@ public class PandoraClientServiceImpl implements PandoraService {
 				.collect(Collectors.toSet());
 	}
 
-	public PandoraClient findByHostName(PandoraClientDTO pandoraClientDTO) {
-		return pandoraClientRepository.findByHostname(pandoraClientDTO.getHostname())
+	private PandoraClient findByHostName(PandoraClientDTO pandoraClientDTO) {
+		return findByHostname(pandoraClientDTO.getHostname());
+	}
+	
+	private PandoraClient findByHostName(String hostname) {
+		return pandoraClientRepository.findByHostname(hostname)
 				.map(p -> p)
 				.orElseThrow(() -> new IllegalStateException(ERR_NOT_FOUND));
 	}
