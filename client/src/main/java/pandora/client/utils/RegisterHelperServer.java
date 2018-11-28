@@ -49,10 +49,10 @@ public class RegisterHelperServer implements RegisterHelper {
 			payload = FileUtils.downloadFileToMemory(amazonMetadata);
 		} catch (MalformedURLException e) {
 			log.error("The URL is malformed: " + amazonMetadata);
-			return null;
+			return "SERVER_WITHOUT_METADATA";
 		} catch (IOException e) {
 			log.error("It fails to read from the stream: " + amazonMetadata);
-			return null;
+			return "SERVER_WITHOUT_METADATA";
 		}
 
 		return new String(payload, Charset.forName("UTF-8"));
