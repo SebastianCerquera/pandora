@@ -12,5 +12,11 @@ RUN chmod +x /opt/integration/simple-test.sh
 COPY entrypoint.sh /opt/integration/entrypoint.sh
 RUN chmod +x /opt/integration/entrypoint.sh
 
+RUN curl "https://bootstrap.pypa.io/get-pip.py" -o "get-pip.py" && \
+    python get-pip.py && \
+    pip install flask
+
+COPY amazon.py /opt/amazon.py
+
 ENTRYPOINT ["bash", "-x", "/opt/integration/entrypoint.sh"]
 CMD ["test"]
