@@ -55,9 +55,13 @@ node('docker-agent'){
 	     sh '/usr/bin/docker stop server-jenkins;'
 	     sh '/usr/bin/docker rm server-jenkins;'
 
-             echo "Deploying ";
+             echo "Destroying Client ";
 	     sh '/usr/bin/docker stop client-jenkins;'
 	     sh '/usr/bin/docker rm client-jenkins;'
+
+             echo "Destroying Dummy ";
+	     sh '/usr/bin/docker stop metadata-dummy;'
+	     sh '/usr/bin/docker rm metadata-dummy;'
          };
          deleteDir();
      };

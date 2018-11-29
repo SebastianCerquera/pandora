@@ -4,6 +4,14 @@ set -e
 
 CLIENT_DOCKER=$1
 
+###
+# Checks that the client properly registered.
+###
+curl pandora:8080/v1/clients
+
+###
+#   CREATES PROBLEMS
+### 
 curl pandora:8080/v1/problems
  
 RAW=$(curl -XPOST pandora:8080/v1/problems/150 2>/dev/null)
