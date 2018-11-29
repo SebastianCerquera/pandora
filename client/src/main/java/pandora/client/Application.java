@@ -1,7 +1,12 @@
 package pandora.client;
 
+import java.io.IOException;
+
 import javax.annotation.PreDestroy;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -18,6 +23,17 @@ import pandora.client.utils.RegisterHelperServer;
 @SpringBootApplication
 @EnableScheduling
 public class Application {
+	
+	@Autowired
+	ConfigurationProperties properties; 
+	
+	@Autowired
+	RegisterHelperDummy registerDummy;
+	
+	@Autowired
+	RegisterHelperServer registerServer;
+	
+	private static final Logger log = LoggerFactory.getLogger(Application.class);
 
 	public static void main(String[] args) throws Exception {
 		SpringApplication.run(Application.class);
@@ -29,8 +45,7 @@ public class Application {
 	}
 
 	@Bean
-	public CommandLineRunner setup(ConfigurationProperties properties, RegisterHelperDummy registerDummy,
-			RegisterHelperServer registerServer) {
+	public CommandLineRunner setup() {
 		return (args) -> {
 			RegisterHelper register = properties.getProfile().equals("development") ? registerDummy : registerServer;
 			register.register();
@@ -39,14 +54,12 @@ public class Application {
 
 	@PreDestroy
 	public void unregisterClient() {
-		log.info("###STOPing###");
+		RegisterHelper register = properties.getProfile().equals("development") ? registerDummy : registerServer;
 		try {
-			Thread.sleep(5 * 1000);
-		} catch (InterruptedException e) {
-			log.error("", e);
-			;
+			register.unregister();
+		} catch (IOException e) {
+			log.error("It fail to unregister to the server");
 		}
-		log.info("###STOP FROM THE LIFECYCLE###");
 	}
-
+	
 }

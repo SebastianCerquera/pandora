@@ -19,18 +19,18 @@ import pandora.client.model.PandoraClient;
 
 @Component("default")
 public class RegisterHelperServer implements RegisterHelper {
-	
+
 	@Autowired
 	RestTemplate template;
-	
+
 	@Autowired
-	ConfigurationProperties instanceProperties; 
-	
+	ConfigurationProperties instanceProperties;
+
 	private static final Logger log = LoggerFactory.getLogger(ScheduledTasks.class);
-	
+
 	public String register() throws IOException {
 		String hostname = getHostname(instanceProperties.getAmazonMetadata());
-		
+
 		PandoraClient client = new PandoraClient(hostname);
 
 		HttpHeaders headers = new HttpHeaders();
@@ -38,17 +38,17 @@ public class RegisterHelperServer implements RegisterHelper {
 
 		HttpEntity<PandoraClient> entity = new HttpEntity<PandoraClient>(client, headers);
 		template.postForEntity(instanceProperties.getServerEndpoint() + "/v1/clients", entity, Void.class);
-		
+
 		return hostname;
 	}
-	
 
 	@Override
 	public String unregister() throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		String hostname = getHostname(instanceProperties.getAmazonMetadata());
+		template.delete(instanceProperties.getServerEndpoint() + "/v1/clients/" + hostname);
+		return hostname;
 	}
-	
+
 	private String getHostname(String amazonMetadata) {
 		byte[] payload = null;
 
@@ -64,7 +64,7 @@ public class RegisterHelperServer implements RegisterHelper {
 
 		return new String(payload, Charset.forName("UTF-8"));
 	}
-	
+
 	public static String execReadToString(String execCommand) throws IOException {
 		try (Scanner s = new Scanner(Runtime.getRuntime().exec(execCommand).getInputStream()).useDelimiter("\\A")) {
 			return s.hasNext() ? s.next() : "";

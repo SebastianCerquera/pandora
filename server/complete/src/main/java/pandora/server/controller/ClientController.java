@@ -31,7 +31,7 @@ public class ClientController {
 	
 	@GetMapping(value = "/clients/{hostname}")
 	public ResponseEntity<PandoraClientDTO> getByHostname(@PathVariable("hostname") String hostname) {
-		return new ResponseEntity<>(pandoraService.findAll(),HttpStatus.OK);
+		return new ResponseEntity<>(pandoraService.findByHostname(hostname),HttpStatus.OK);
 	}
 
 	@PutMapping(value = "/clients")
