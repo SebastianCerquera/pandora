@@ -16,6 +16,7 @@ if [ -z "$CLIENTS_COUNT" -o  $CLIENTS_COUNT -ne  1 ]; then
 fi
 
 CLIENT_ID=$(echo $CLIENTS | jq '.[] | .id')
+echo "The client is registered, its id is: $CLIENT_ID"
 
 ###
 #   CREATES PROBLEMS
@@ -45,9 +46,9 @@ $KEY
 EOF
  
 touch 1.jpg 2.jpg 3.jpg
-dd if=/dev/zero of=1.jpg count=10 bs=1M
-dd if=/dev/zero of=2.jpg count=10 bs=1M
-dd if=/dev/zero of=3.jpg count=10 bs=1M
+dd if=/dev/zero of=1.jpg count=10 bs=1M 2>/dev/null
+dd if=/dev/zero of=2.jpg count=10 bs=1M 2>/dev/null
+dd if=/dev/zero of=3.jpg count=10 bs=1M 2>/dev/null
  
 for i in 1.jpg	2.jpg  3.jpg; do 
     curl -XPOST -F "file=@$i" -F "fileName=$i"  pandora:8080/v1/problems/$ID/images;
@@ -91,3 +92,21 @@ else
     exit 100
 fi
 cd ..
+
+
+###
+# Checks client unregister before shutting down
+###
+
+docker stop $CLIENT_DOCKER
+
+CLIENTS=$(curl pandora:8080/v1/clients 2>/dev/null)
+CLIENTS_COUNT=$(echo $CLIENTS | jq length )
+
+if [ -z "$CLIENTS_COUNT" -o  $CLIENTS_COUNT -ne  0 ]; then
+    echo "Something went wrong, the client failed to unregister"
+    exit 100
+fi
+
+
+echo "The client with ID: $CLIENT_ID unregister properly"
