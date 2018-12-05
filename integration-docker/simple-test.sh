@@ -7,7 +7,15 @@ CLIENT_DOCKER=$1
 ###
 # Checks that the client properly registered.
 ###
-curl pandora:8080/v1/clients
+CLIENTS=$(curl pandora:8080/v1/clients 2>/dev/null)
+CLIENTS_COUNT=$(echo $CLIENTS | jq length )
+
+if [ -z "$CLIENTS_COUNT" -o  $CLIENTS_COUNT -ne  1 ]; then
+    echo "Something went wrong, the client failed to register"
+    exit 100
+fi
+
+CLIENT_ID=$(echo $CLIENTS | jq '.[] | .id')
 
 ###
 #   CREATES PROBLEMS
