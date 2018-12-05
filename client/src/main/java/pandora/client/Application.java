@@ -48,7 +48,7 @@ public class Application {
 	public CommandLineRunner setup() {
 		return (args) -> {
 			RegisterHelper register = properties.getProfile().equals("development") ? registerDummy : registerServer;
-			register.register();
+                        log.info("The client was succesfully registered: " + register.register());
 		};
 	}
 
@@ -56,7 +56,7 @@ public class Application {
 	public void unregisterClient() {
 		RegisterHelper register = properties.getProfile().equals("development") ? registerDummy : registerServer;
 		try {
-			register.unregister();
+                        log.info("The client was succesfully unregistered: " + register.unregister());
 		} catch (IOException e) {
 			log.error("It fail to unregister to the server");
 		}

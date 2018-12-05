@@ -1,5 +1,8 @@
 package pandora.server.service.impl;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -19,7 +22,9 @@ import pandora.server.service.PandoraService;
 public class PandoraClientServiceImpl implements PandoraService {
 
 	public static final String ERR_NOT_FOUND = "There is no client with the provided hostname";
-	
+
+        private static final Logger log = LoggerFactory.getLogger(PandoraClientServiceImpl.class);
+    
 	@Autowired
 	ModelMapService mapService;
 
@@ -29,9 +34,10 @@ public class PandoraClientServiceImpl implements PandoraService {
 	@Autowired
 	PandoraClientRepository pandoraClientRepository;
 	
-
+    
 	@Override
-	public List<PandoraClientDTO> findAll() {	
+	public List<PandoraClientDTO> findAll() {
+                log.info("Retrieving registered clients from db.");
 		return mapService.mapList(pandoraClientRepository.findAll(), PandoraClientDTO.class);
 	}
 
@@ -42,7 +48,8 @@ public class PandoraClientServiceImpl implements PandoraService {
 
 	@Override
 	public PandoraClientDTO save(PandoraClientDTO pandoraClientDTO) {
-		return mapService.map(pandoraClientDTO, PandoraClientDTO.class);
+                log.info("Saving cliento to db, client hostname: " + pandoraClientDTO.getHostname());
+                return mapService.map(pandoraClientDTO, PandoraClientDTO.class);
 	}
 
 	@Override
