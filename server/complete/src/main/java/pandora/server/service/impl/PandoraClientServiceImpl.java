@@ -37,7 +37,7 @@ public class PandoraClientServiceImpl implements PandoraService {
     
 	@Override
 	public List<PandoraClientDTO> findAll() {
-                log.info("Retrieving registered clients from db.");
+		log.info("Retrieving registered clients from db.");
 		return mapService.mapList(pandoraClientRepository.findAll(), PandoraClientDTO.class);
 	}
 
@@ -48,8 +48,10 @@ public class PandoraClientServiceImpl implements PandoraService {
 
 	@Override
 	public PandoraClientDTO save(PandoraClientDTO pandoraClientDTO) {
-                log.info("Saving cliento to db, client hostname: " + pandoraClientDTO.getHostname());
-                return mapService.map(pandoraClientDTO, PandoraClientDTO.class);
+		log.info("Saving cliento to db, client hostname: " + pandoraClientDTO.getHostname());
+		PandoraClient entity = mapService.map(pandoraClientDTO, PandoraClient.class);
+		entity = pandoraClientRepository.saveAndFlush(entity);
+		return mapService.map(entity, PandoraClientDTO.class);
 	}
 
 	@Override
