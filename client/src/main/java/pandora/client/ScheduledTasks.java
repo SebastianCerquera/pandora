@@ -8,6 +8,7 @@ import java.nio.charset.Charset;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -18,8 +19,14 @@ import javax.crypto.NoSuchPaddingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 
+import pandora.client.model.PandoraClient;
 import pandora.client.model.RSAProblem;
 import pandora.client.utils.AESUtils;
 import pandora.client.utils.ConfigurationProperties;
@@ -27,6 +34,9 @@ import pandora.client.utils.FileUtils;
 
 @Component
 public class ScheduledTasks {
+	
+	@Autowired
+	RestTemplate template;
 
 	@Autowired
 	private ConfigurationProperties instanceProperties;
@@ -168,6 +178,49 @@ public class ScheduledTasks {
 			return;
 		}
 	}
+	
+	// TODO Este metodo se duplico, esta igual en RegisterHelperServer
+	private String getHostname(String amazonMetadata) {
+		byte[] payload = null;
+
+		try {
+			payload = FileUtils.downloadFileToMemory(amazonMetadata);
+		} catch (MalformedURLException e) {
+			log.error("The URL is malformed: " + amazonMetadata);
+			return "SERVER_WITHOUT_METADATA";
+		} catch (IOException e) {
+			log.error("It fails to read from the stream: " + amazonMetadata);
+			return "SERVER_WITHOUT_METADATA";
+		}
+
+		return new String(payload, Charset.forName("UTF-8"));
+	}
+	
+	private void updateState() {
+		String target = instanceProperties.getServerEndpoint() + "/v1/clients/";
+		
+		String hostname = getHostname(instanceProperties.getAmazonMetadata());
+		
+		ResponseEntity<PandoraClient> entity = template.getForEntity(target + hostname, PandoraClient.class);
+		PandoraClient pandoraClient = entity.getBody();
+		
+		ArrayList<RSAProblem> problems = new ArrayList<>();
+		for(String id : this.problems.keySet()) {
+			RSAProblem problem = new RSAProblem();
+			problem.setId(Long.valueOf(id));
+			problems.add(problem);
+		}
+			
+		pandoraClient.setProblems(problems);
+		
+		
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		
+		HttpEntity<PandoraClient> httpEntity = new HttpEntity<PandoraClient>(pandoraClient, headers);
+		template.put(target, httpEntity);
+	}
+	
 
 	private void startProblem(String id, String modulus, Long solution, Long delay) {
 		Thread newProblem = new Thread() {
@@ -177,6 +230,8 @@ public class ScheduledTasks {
 							instanceProperties.getTargetFolder() + "/" + id + "/safe.tar.encrypted", solution);
 					log.info("A new problem has started, id code: " + id);
 					log.info("This is the modulus for the problem with id: " + id + " " + modulus);
+					
+					updateState();
 
 					Thread.sleep(delay * 1000);
 

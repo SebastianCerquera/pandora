@@ -92,21 +92,3 @@ else
     exit 100
 fi
 cd ..
-
-
-###
-# Checks client unregister before shutting down
-###
-
-docker stop $CLIENT_DOCKER
-
-CLIENTS=$(curl pandora:8080/v1/clients 2>/dev/null)
-CLIENTS_COUNT=$(echo $CLIENTS | jq length )
-
-if [ -z "$CLIENTS_COUNT" -o  $CLIENTS_COUNT -ne  0 ]; then
-    echo "Something went wrong, the client failed to unregister"
-    exit 100
-fi
-
-
-echo "The client with ID: $CLIENT_ID unregister properly"

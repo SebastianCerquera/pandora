@@ -20,7 +20,7 @@ public class RSAProblem {
 
 	private List<RSAPayload> images;
 
-	protected RSAProblem() {
+	public RSAProblem() {
 	}
 
 	public RSAProblem(String raw) {

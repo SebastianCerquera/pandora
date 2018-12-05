@@ -56,7 +56,7 @@ node('docker-agent'){
 	     sh '/usr/bin/docker rm server-jenkins;'
 
              echo "Destroying Client ";
-	     // The client was stop by simple-test.sh
+             sh '/usr/bin/docker stop client-jenkins;'
 	     sh '/usr/bin/docker rm client-jenkins;'
 
              echo "Destroying Dummy ";
