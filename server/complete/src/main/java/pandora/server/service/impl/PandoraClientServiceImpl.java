@@ -110,7 +110,7 @@ public class PandoraClientServiceImpl implements PandoraService {
 
 	private Set<RSAProblem> refreshClientProblems(PandoraClient pandoraClient) {
 		return pandoraClient.getProblems().stream()
-				.map(p -> rsaServiceImpl.fetchByProblemId().apply(p))
+				.map(p -> rsaServiceImpl.fetchByProblemId().apply(p.getId()))
 				.filter(Objects::nonNull)
 				.collect(Collectors.toSet());
 	}
