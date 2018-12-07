@@ -141,8 +141,16 @@ public class RSAController {
 		return pending;
 	}
 
-	//The problem is going to be deleted even if nobody calls this service, the PandoraClientServiceImpl.update will remove the problem when the last
-	// client updates its state.
+	/*
+	 * The problem is going to be deleted even if nobody calls this service, the PandoraClientServiceImpl.update will remove the problem when the last
+	 * client updates its state.
+	 */
+	
+	/*
+	 * it is missing to set an apropiate code when the problems doesn't exists, right now it is
+	 * sending a 500 code error, it is hard to distinguish in between a crash and the normal flow.
+	 */
+	
 	@DeleteMapping(value = "/v1/problems/{id}", produces = { "application/json" })
 	public ResponseEntity<?> delete(@PathVariable("id") Long id) {
 		Optional<RSAProblem> problem = repositoryProblem.findById(id);

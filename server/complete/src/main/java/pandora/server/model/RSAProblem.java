@@ -21,10 +21,23 @@ public class RSAProblem implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
+	/*
+	 * I needed to generate the getters an setter fotr this field otherwise it will fail.
+	 * RSAServiceImpl.class]: Instantiation of bean failed; nested exception is org.springframework.beans.BeanInstantiationException: Failed to instantiate [pandora.server.service.impl.RSAServiceImpl]: Constructor threw exception; nested exception is java.lang.Error: Unresolved compilation problem: 
+	 * The method getId() is undefined for the type RSAProblem
+	 */
 	@Id
     @GeneratedValue(strategy=GenerationType.AUTO)
 	private Long id;
 	
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
 	private String modulus;
 	
 	private String secret;

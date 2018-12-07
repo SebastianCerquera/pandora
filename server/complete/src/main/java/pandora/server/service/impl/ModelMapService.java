@@ -15,6 +15,7 @@ public class ModelMapService {
 	@Autowired
 	ModelMapper mapper;
 	
+	
 	public <D,T> D map(T modelEntity, Class<D> dtoClass) {
 		return mapper.map(modelEntity, dtoClass);
 	}

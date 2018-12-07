@@ -42,7 +42,7 @@ public class PandoraClient {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("RSAProblem: <");
+		builder.append("PandoraClient: <");
 		builder.append(this.hostname);
 		builder.append(">");
 		return builder.toString();
