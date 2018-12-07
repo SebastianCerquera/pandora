@@ -62,6 +62,8 @@ public class PandoraClientServiceImpl implements PandoraService {
 		client.setProblems(refreshClientProblems(client));
 		client.setState(PandoraClient.STATES.HEALTHY);
 
+		log.info("Cliento state succesfully updated, client hostname: " + pandoraClientDTO.getHostname());
+		
 		return mapService.map(client, PandoraClientDTO.class);		
 	}
 	

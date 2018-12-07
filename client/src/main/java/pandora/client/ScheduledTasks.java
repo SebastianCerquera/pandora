@@ -220,7 +220,7 @@ public class ScheduledTasks {
 		HttpEntity<PandoraClient> httpEntity = new HttpEntity<PandoraClient>(pandoraClient, headers);
 		template.put(target, httpEntity);
 		
-		log.info("New state was sent to the server: ");
+		log.info("New state was sent to the server: " + target);
 	}
 	
 
