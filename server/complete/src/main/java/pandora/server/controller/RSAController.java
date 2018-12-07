@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -15,6 +16,9 @@ import org.kamranzafar.jtar.TarOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.parsing.Problem;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,9 +30,11 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import pandora.server.conf.ConfigurationProperties;
+import pandora.server.model.PandoraClient;
 import pandora.server.model.RSAPayload;
 import pandora.server.model.RSAProblem;
 import pandora.server.model.RSAProblem.STATES;
+import pandora.server.repository.PandoraClientRepository;
 import pandora.server.repository.RSAPayloadRepository;
 import pandora.server.repository.RSAProblemRepository;
 
@@ -45,7 +51,6 @@ public class RSAController {
 
 	@Autowired
 	RSAPayloadRepository repositoryPayload;
-	
 
 	/*
 	 * TODO to be consistent this shuould produce a json file.
@@ -115,12 +120,40 @@ public class RSAController {
 		repositoryProblem.save(entity.get());
 	}
 
+	// Este metodo contiene logica repetica con ClientController
+	private List<PandoraClient> checkClientsSynced(Long id) {
+		ArrayList<PandoraClient> pending = new ArrayList<>();
+
+		List<PandoraClient> clients = repositoryClient.findAll();
+		for (PandoraClient client : clients) {
+			Boolean synced = false;
+			for (RSAProblem problem : client.getProblems())
+				if (problem.getId().equals(id))
+					synced = true;
+			if (!synced)
+				pending.add(client);
+		}
+
+		return pending;
+	}
+
+	//The problem is going to be deleted even if nobody calls this service, the PandoraClientServiceImpl.update will remove the problem when the last
+	// client updates its state.
 	@DeleteMapping(value = "/v1/problems/{id}", produces = { "application/json" })
-	public void delete(@PathVariable("id") Long id) {
+	public ResponseEntity<?> delete(@PathVariable("id") Long id) {
 		Optional<RSAProblem> problem = repositoryProblem.findById(id);
 		if (problem == Optional.<RSAProblem>empty())
 			throw new IllegalStateException("There is no problem with the provided ID");
-		repositoryProblem.delete(problem.get());
+
+		List<PandoraClient> synced = checkClientsSynced(id);
+
+		HttpStatus status = HttpStatus.ACCEPTED;
+		if (synced.isEmpty()) {
+			status = HttpStatus.OK;
+			repositoryProblem.delete(problem.get());
+		}
+
+		return new ResponseEntity<>(status);
 	}
 
 	/*

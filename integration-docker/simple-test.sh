@@ -65,7 +65,28 @@ curl pandora:8080/v1/problems/$ID
 
 [ -d output ] || mkdir output
 curl pandora:8080/v1/problems/$ID/images -o output/safe.tar 2>/dev/null
- 
+
+RESULT_CODE=$(curl -D - -XDELETE pandora:8080/v1/problems/$ID 2>/dev/null | perl -lne '/HTTP\/1\.\d+\s*(.+)/ && print $1')
+
+if [ "x$DELETE_RESULT" ==  "x500" ]; then
+    echo "Something went wrong, there shuld have been a problem"
+    exit 100
+fi
+
+if [ "x$DELETE_RESULT" ==  "x200" ]; then
+    echo "The problems was succesfully deleted, the client was already sinced"
+fi
+
+while [ "x$DELETE_RESULT" ==  "x202" ]; do
+    RESULT_CODE=$(curl -D - -XDELETE pandora:8080/v1/problems/$ID 2>/dev/null | perl -lne '/HTTP\/1\.\d+\s*(.+)/ && print $1')
+    echo "Deleting problem, waiting for clients to sync."
+    sleep 60
+done
+
+if [ "x$DELETE_RESULT" ==  "x500" ]; then
+    echo "The problems was succesfully deleted"
+fi
+
 cd output
 tar xf safe.tar 2>/dev/null
 PAYLOAD_ORIGINAL=$(ls | sort | perl -le '$r = ""; while(<>){if(/.*\.jpg/){chomp(); $r=$r.$_;}} print $r;')
@@ -75,10 +96,8 @@ else
     exit 100
 fi
 cd ..
- 
-sleep 300
 
-curl -XDELETE pandora:8080/v1/problems/$ID
+sleep 300
 
 [ -d payload ] || mkdir payload
 docker cp $CLIENT_DOCKER:/tmp/runs/$ID/safe.tar payload/safe.tar

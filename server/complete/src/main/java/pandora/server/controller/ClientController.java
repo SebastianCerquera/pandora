@@ -5,8 +5,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pandora.server.dto.PandoraClientDTO;
+import pandora.server.model.PandoraClient;
+import pandora.server.model.RSAProblem;
+import pandora.server.repository.PandoraClientRepository;
 import pandora.server.service.PandoraService;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
