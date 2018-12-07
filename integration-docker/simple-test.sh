@@ -66,24 +66,25 @@ curl pandora:8080/v1/problems/$ID
 [ -d output ] || mkdir output
 curl pandora:8080/v1/problems/$ID/images -o output/safe.tar 2>/dev/null
 
-RESULT_CODE=$(curl -D - -XDELETE pandora:8080/v1/problems/$ID 2>/dev/null | perl -lne '/HTTP\/1\.\d+\s*(.+)/ && print $1')
+## The regular expression is duplicated below
+RESULT_CODE=$(curl -D - -XDELETE pandora:8080/v1/problems/$ID 2>/dev/null | perl -ne '/HTTP\/1\.\d+\s*(\d+)/ && print $1')
 
-if [ "x$DELETE_RESULT" ==  "x500" ]; then
+if [ "x$RESULT_CODE" ==  "x500" ]; then
     echo "Something went wrong, there shuld have been a problem"
     exit 100
 fi
 
-if [ "x$DELETE_RESULT" ==  "x200" ]; then
+if [ "x$RESULT_CODE" ==  "x200" ]; then
     echo "The problems was succesfully deleted, the client was already sinced"
 fi
 
-while [ "x$DELETE_RESULT" ==  "x202" ]; do
-    RESULT_CODE=$(curl -D - -XDELETE pandora:8080/v1/problems/$ID 2>/dev/null | perl -lne '/HTTP\/1\.\d+\s*(.+)/ && print $1')
+while [ "x$RESULT_CODE" ==  "x202" ]; do
+    RESULT_CODE=$(curl -D - -XDELETE pandora:8080/v1/problems/$ID 2>/dev/null | perl -ne '/HTTP\/1\.\d+\s*(\d+)/ && print $1')
     echo "Deleting problem, waiting for clients to sync."
     sleep 60
 done
 
-if [ "x$DELETE_RESULT" ==  "x500" ]; then
+if [ "x$RESULT_CODE" ==  "x500" ]; then
     echo "The problems was succesfully deleted"
 fi
 

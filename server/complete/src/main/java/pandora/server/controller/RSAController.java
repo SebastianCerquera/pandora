@@ -48,6 +48,10 @@ public class RSAController {
 
 	@Autowired
 	RSAProblemRepository repositoryProblem;
+	
+	@Autowired
+	PandoraClientRepository repositoryClient;
+	
 
 	@Autowired
 	RSAPayloadRepository repositoryPayload;
