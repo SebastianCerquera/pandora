@@ -219,6 +219,8 @@ public class ScheduledTasks {
 		
 		HttpEntity<PandoraClient> httpEntity = new HttpEntity<PandoraClient>(pandoraClient, headers);
 		template.put(target, httpEntity);
+		
+		log.info("New state was sent to the server: ");
 	}
 	
 
@@ -232,7 +234,7 @@ public class ScheduledTasks {
 					log.info("This is the modulus for the problem with id: " + id + " " + modulus);
 					
 					updateState();
-
+					
 					Thread.sleep(delay * 1000);
 
 					decryptPayload(instanceProperties.getTargetFolder() + "/" + id + "/safe.tar.encrypted",
