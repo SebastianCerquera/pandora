@@ -2,7 +2,10 @@
 
 set -e
 
+## This is not the name of the client container but the suffix.
 CLIENT_DOCKER=$1
+
+BASE=$(pwd)
 
 ###
 # Checks that the client properly registered.
@@ -100,19 +103,21 @@ if [ "x$PAYLOAD_ORIGINAL" == "x1.jpg2.jpg3.jpg" ]; then
 else
     exit 100
 fi
-cd ..
+cd $BASE
 
 sleep 300
 
-[ -d payload ] || mkdir payload
-docker cp $CLIENT_DOCKER:/tmp/runs/$ID/safe.tar payload/safe.tar
-
-cd payload
-tar xf safe.tar 2>/dev/null
-PAYLOAD_ENCRYPTED=$(ls | sort | perl -le '$r = ""; while(<>){if(/.*\.jpg/){chomp(); $r=$r.$_;}} print $r;')
-if [ "x$PAYLOAD_ENCRYPTED" == "x1.jpg2.jpg3.jpg" ]; then
-    echo "The client produced the proper payload: $PAYLOAD_ENCRYPTED"
-else
-    exit 100
-fi
-cd ..
+for i in 1 2; do
+       [ -d "payload$i" ] || mkdir payload$i
+       docker cp "$CLIENT_DOCKER-$i" :/tmp/runs/$ID/safe.tar payload$i/safe.tar
+        
+       cd payload$i
+       tar xf safe.tar 2>/dev/null
+       PAYLOAD_ENCRYPTED=$(ls | sort | perl -le '$r = ""; while(<>){if(/.*\.jpg/){chomp(); $r=$r.$_;}} print $r;')
+       if [ "x$PAYLOAD_ENCRYPTED" == "x1.jpg2.jpg3.jpg" ]; then
+           echo "The client produced the proper payload: $PAYLOAD_ENCRYPTED"
+       else
+           exit 100
+       fi
+       cd $BASE
+done

@@ -39,11 +39,14 @@ node('docker-agent'){
 
              echo "Deploying Server";
              sh '/usr/bin/docker run -d --name server-jenkins -e RSAGEN=/opt/rsagen.sh -t pandora/server:stable server;'
+             sh 'sleep 60'
 
-             echo "Deploying Client";
-	     sh 'sleep 60'
-	     sh '/usr/bin/docker run -d --name client-jenkins -e JOB_DELAY=60 -e PROFILE=default -e SERVER_ENDPOINT=http://pandora:8080 -e TARGET_FOLDER=/tmp/runs -e AMAZON_METADATA=http://dummy:5200/public-hostname --link server-jenkins:pandora --link metadata-dummy:dummy -t pandora/client:stable client;'
-             
+             echo "Deploying Client 1";
+	     sh '/usr/bin/docker run -d --name client-jenkins-1 -e JOB_DELAY=60 -e PROFILE=default -e SERVER_ENDPOINT=http://pandora:8080 -e TARGET_FOLDER=/tmp/runs -e AMAZON_METADATA=http://dummy:5200/public-hostname --link server-jenkins:pandora --link metadata-dummy:dummy -t pandora/client:stable client;'
+
+             echo "Deploying Client 2";
+	     sh '/usr/bin/docker run -d --name client-jenkins-2 -e JOB_DELAY=120 -e PROFILE=default -e SERVER_ENDPOINT=http://pandora:8080 -e TARGET_FOLDER=/tmp/runs -e AMAZON_METADATA=http://dummy:5200/public-hostname --link server-jenkins:pandora --link metadata-dummy:dummy -t pandora/client:stable client;'
+
              echo "Building Test"
 	     sh 'bash ./integration-docker/build.sh 0.0.5'
 
@@ -56,8 +59,10 @@ node('docker-agent'){
 	     sh '/usr/bin/docker rm server-jenkins;'
 
              echo "Destroying Client ";
-             sh '/usr/bin/docker stop client-jenkins;'
-	     sh '/usr/bin/docker rm client-jenkins;'
+             sh '/usr/bin/docker stop client-jenkins-1;'
+	     sh '/usr/bin/docker rm client-jenkins-1;'
+             sh '/usr/bin/docker stop client-jenkins-2;'
+	     sh '/usr/bin/docker rm client-jenkins-2;'
 
              echo "Destroying Dummy ";
 	     sh '/usr/bin/docker stop metadata-dummy;'
