@@ -86,7 +86,7 @@ if [ "x$RESULT_CODE" ==  "x200" ]; then
     echo "The problems was succesfully deleted, the client was already sinced"
 fi
 
-There is a cocurrency error, if the runner keeps trying to delete the problem the clients might not sync properlt.
+## There is a cocurrency error, if the runner keeps trying to delete the problem the clients might not sync properlt.
 while [ "x$RESULT_CODE" ==  "x202" ]; do
     RESULT_CODE=$(curl -D - -XDELETE pandora:8080/v1/problems/$ID 2>/dev/null | perl -ne '/HTTP\/1\.\d+\s*(\d+)/ && print $1')
     echo "Deleting problem, waiting for clients to sync."
