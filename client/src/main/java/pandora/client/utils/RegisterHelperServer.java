@@ -25,6 +25,8 @@ public class RegisterHelperServer implements RegisterHelper {
 
 	@Autowired
 	ConfigurationProperties instanceProperties;
+	
+	private static String hostname;
 
 	private static final Logger log = LoggerFactory.getLogger(ScheduledTasks.class);
 
@@ -49,7 +51,13 @@ public class RegisterHelperServer implements RegisterHelper {
 		return hostname;
 	}
 
+	/*
+	 * Retrieve the hostname from the amazon metadata just once, it caches the value using an static variable.
+	 */
 	private String getHostname(String amazonMetadata) {
+		if(hostname != null)
+			return hostname;
+		
 		byte[] payload = null;
 
 		try {
@@ -62,7 +70,8 @@ public class RegisterHelperServer implements RegisterHelper {
 			return "SERVER_WITHOUT_METADATA";
 		}
 
-		return new String(payload, Charset.forName("UTF-8"));
+		hostname = new String(payload, Charset.forName("UTF-8")); 
+		return hostname;
 	}
 
 	public static String execReadToString(String execCommand) throws IOException {

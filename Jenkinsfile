@@ -42,10 +42,10 @@ node('docker-agent'){
              sh 'sleep 60'
 
              echo "Deploying Client 1";
-	     sh '/usr/bin/docker run -d --name client-jenkins-1 -e JOB_DELAY=60 -e PROFILE=default -e SERVER_ENDPOINT=http://pandora:8080 -e TARGET_FOLDER=/tmp/runs -e AMAZON_METADATA=http://dummy:5200/public-hostname --link server-jenkins:pandora --link metadata-dummy:dummy -t pandora/client:stable client;'
+	     sh '/usr/bin/docker run -d --name client-jenkins-1 -e JOB_DELAY=15 -e PROFILE=default -e SERVER_ENDPOINT=http://pandora:8080 -e TARGET_FOLDER=/tmp/runs -e AMAZON_METADATA=http://dummy:5200/public-hostname --link server-jenkins:pandora --link metadata-dummy:dummy -t pandora/client:stable client;'
 
              echo "Deploying Client 2";
-	     sh '/usr/bin/docker run -d --name client-jenkins-2 -e JOB_DELAY=120 -e PROFILE=default -e SERVER_ENDPOINT=http://pandora:8080 -e TARGET_FOLDER=/tmp/runs -e AMAZON_METADATA=http://dummy:5200/public-hostname --link server-jenkins:pandora --link metadata-dummy:dummy -t pandora/client:stable client;'
+	     sh '/usr/bin/docker run -d --name client-jenkins-2 -e JOB_DELAY=45 -e PROFILE=default -e SERVER_ENDPOINT=http://pandora:8080 -e TARGET_FOLDER=/tmp/runs -e AMAZON_METADATA=http://dummy:5200/public-hostname --link server-jenkins:pandora --link metadata-dummy:dummy -t pandora/client:stable client;'
 
              echo "Building Test"
 	     sh 'bash ./integration-docker/build.sh 0.0.5'

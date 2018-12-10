@@ -13,20 +13,22 @@ BASE=$(pwd)
 CLIENTS=$(curl pandora:8080/v1/clients 2>/dev/null)
 CLIENTS_COUNT=$(echo $CLIENTS | jq length )
 
-if [ -z "$CLIENTS_COUNT" -o  $CLIENTS_COUNT -ne  1 ]; then
+if [ -z "$CLIENTS_COUNT" -o  $CLIENTS_COUNT -ne  2 ]; then
     echo "Something went wrong, the client failed to register"
     exit 100
 fi
 
-CLIENT_ID=$(echo $CLIENTS | jq '.[] | .id')
-echo "The client is registered, its id is: $CLIENT_ID"
+for i in $(seq 1 $CLIENTS_COUNT); do
+    CLIENT_ID=$(echo $CLIENTS | jq '.['"$(($i - 1))"'].id')
+    echo "The client is registered, its id is: $CLIENT_ID"
+done
 
 ###
 #   CREATES PROBLEMS
 ### 
 curl pandora:8080/v1/problems
  
-RAW=$(curl -XPOST pandora:8080/v1/problems/150 2>/dev/null)
+RAW=$(curl -XPOST pandora:8080/v1/problems/120 2>/dev/null)
 ID=$(echo "$RAW" | perl -ne '/\"id\":\s*(\d+)/ && print $1')
  
 KEY=$(curl pandora:8080/v1/problems/$ID 2>/dev/null)
@@ -105,11 +107,11 @@ else
 fi
 cd $BASE
 
-sleep 300
+sleep 240
 
-for i in 1 2; do
+for i in $(seq 1 $CLIENTS_COUNT); do
        [ -d "payload$i" ] || mkdir payload$i
-       docker cp "$CLIENT_DOCKER-$i" :/tmp/runs/$ID/safe.tar payload$i/safe.tar
+       docker cp "$CLIENT_DOCKER-$i":/tmp/runs/$ID/safe.tar payload$i/safe.tar
         
        cd payload$i
        tar xf safe.tar 2>/dev/null
