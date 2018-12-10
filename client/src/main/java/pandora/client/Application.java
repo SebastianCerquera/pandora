@@ -23,16 +23,16 @@ import pandora.client.utils.RegisterHelperServer;
 @SpringBootApplication
 @EnableScheduling
 public class Application {
-	
+
 	@Autowired
-	ConfigurationProperties properties; 
-	
+	ConfigurationProperties properties;
+
 	@Autowired
 	RegisterHelperDummy registerDummy;
-	
+
 	@Autowired
 	RegisterHelperServer registerServer;
-	
+
 	private static final Logger log = LoggerFactory.getLogger(Application.class);
 
 	public static void main(String[] args) throws Exception {
@@ -48,7 +48,7 @@ public class Application {
 	public CommandLineRunner setup() {
 		return (args) -> {
 			RegisterHelper register = properties.getProfile().equals("development") ? registerDummy : registerServer;
-                        log.info("The client was succesfully registered: " + register.register());
+			log.info("The client was succesfully registered: " + register.register());
 		};
 	}
 
@@ -56,10 +56,10 @@ public class Application {
 	public void unregisterClient() {
 		RegisterHelper register = properties.getProfile().equals("development") ? registerDummy : registerServer;
 		try {
-                        log.info("The client was succesfully unregistered: " + register.unregister());
+			log.info("The client was succesfully unregistered: " + register.unregister());
 		} catch (IOException e) {
 			log.error("It fail to unregister to the server");
 		}
 	}
-	
+
 }

@@ -54,7 +54,10 @@ public class RegisterHelperServer implements RegisterHelper {
 	/*
 	 * Retrieve the hostname from the amazon metadata just once, it caches the value using an static variable.
 	 */
-	private String getHostname(String amazonMetadata) {
+	/*
+	 * The integration test will break if the value is not cached.
+	 */
+	public String getHostname(String amazonMetadata) {
 		if(hostname != null)
 			return hostname;
 		

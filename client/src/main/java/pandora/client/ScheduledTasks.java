@@ -31,6 +31,7 @@ import pandora.client.model.RSAProblem;
 import pandora.client.utils.AESUtils;
 import pandora.client.utils.ConfigurationProperties;
 import pandora.client.utils.FileUtils;
+import pandora.client.utils.RegisterHelperServer;
 
 @Component
 public class ScheduledTasks {
@@ -40,6 +41,9 @@ public class ScheduledTasks {
 
 	@Autowired
 	private ConfigurationProperties instanceProperties;
+	
+	@Autowired
+	RegisterHelperServer registerHelper;
 
 	private Map<String, Boolean> problems = new ConcurrentHashMap<>();
 
@@ -179,27 +183,10 @@ public class ScheduledTasks {
 		}
 	}
 	
-	// TODO Este metodo se duplico, esta igual en RegisterHelperServer
-	private String getHostname(String amazonMetadata) {
-		byte[] payload = null;
-
-		try {
-			payload = FileUtils.downloadFileToMemory(amazonMetadata);
-		} catch (MalformedURLException e) {
-			log.error("The URL is malformed: " + amazonMetadata);
-			return "SERVER_WITHOUT_METADATA";
-		} catch (IOException e) {
-			log.error("It fails to read from the stream: " + amazonMetadata);
-			return "SERVER_WITHOUT_METADATA";
-		}
-
-		return new String(payload, Charset.forName("UTF-8"));
-	}
-	
 	private void updateState() {
 		String target = instanceProperties.getServerEndpoint() + "/v1/clients/";
 		
-		String hostname = getHostname(instanceProperties.getAmazonMetadata());
+		String hostname = registerHelper.getHostname(instanceProperties.getAmazonMetadata());
 		
 		ResponseEntity<PandoraClient> entity = template.getForEntity(target + hostname, PandoraClient.class);
 		PandoraClient pandoraClient = entity.getBody();
