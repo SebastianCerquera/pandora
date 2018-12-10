@@ -110,6 +110,13 @@ public class PandoraClientServiceImpl implements PandoraService {
 		
 		log.info("Cliento state succesfully updated, client hostname: " + pandoraClientDTO.getHostname());
 
+		/*
+		 * Sin importar cuantos clientes alla cuando el primero actualiza el estado va a borrar el problema.
+		 * 
+		 * El inconveniente se debe a que cuando el primer cliente actualiza el estado la lista pending
+		 * solo lo contiene a el.
+		 * 
+		 */
 		for (RSAProblem problem : problems) {
 			List<PandoraClient> clients = checkClientsSynced(problem.getId());
 			if (clients.size() == 1) {
