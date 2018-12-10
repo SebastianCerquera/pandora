@@ -117,18 +117,18 @@ public class PandoraClientServiceImpl implements PandoraService {
 		 * solo lo contiene a el.
 		 * 
 		 */
-		for (RSAProblem problem : problems) {
-			List<PandoraClient> clients = checkClientsSynced(problem.getId());
-			if (clients.size() == 1) {
-				PandoraClient singleton = clients.get(0);
-				if (singleton.getId().equals(client.getId())) {
-					removeProblemFromClient(client, problem);
-					repositoryProblem.delete(problem);
-					log.info("The remaming clients already synced the problem. deletes problem: " + problem.getModulus());
-				}
-			}
-
-		}
+//		for (RSAProblem problem : problems) {
+//			List<PandoraClient> clients = checkClientsSynced(problem.getId());
+//			if (clients.size() == 1) {
+//				PandoraClient singleton = clients.get(0);
+//				if (singleton.getId().equals(client.getId())) {
+//					removeProblemFromClient(client, problem);
+//					repositoryProblem.delete(problem);
+//					log.info("The remaming clients already synced the problem. deletes problem: " + problem.getModulus());
+//				}
+//			}
+//
+//		}
 
 		return mapService.map(client, PandoraClientDTO.class);
 	}
