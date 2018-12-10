@@ -63,6 +63,9 @@ curl -XPUT -H 'content-type: application/json' pandora:8080/v1/problems/$ID -d $
 
 curl pandora:8080/v1/problems/$ID
 
+## it is just to create a blank line
+echo ""
+
 [ -d output ] || mkdir output
 curl pandora:8080/v1/problems/$ID/images -o output/safe.tar 2>/dev/null
 
@@ -85,7 +88,8 @@ while [ "x$RESULT_CODE" ==  "x202" ]; do
 done
 
 if [ "x$RESULT_CODE" ==  "x500" ]; then
-    echo "The problems was succesfully deleted"
+    echo "The problem: $ID was succesfully deleted"
+    curl pandora:8080/v1/problems
 fi
 
 cd output
