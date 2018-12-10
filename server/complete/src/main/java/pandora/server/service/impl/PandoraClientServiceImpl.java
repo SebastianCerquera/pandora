@@ -76,20 +76,20 @@ public class PandoraClientServiceImpl implements PandoraService {
 		return pending;
 	}
 	
-	/*
-	 * I think this can be rewriten using functional sintax.
-	 */
-	private PandoraClient removeProblemFromClient(PandoraClient client, RSAProblem problem) {
-		Set<RSAProblem> active = new HashSet<>();
-
-		for (RSAProblem storedProblem : client.getProblems())
-			if (!problem.getId().equals(storedProblem.getId()))
-				active.add(problem);
-
-		client.setProblems(active);
-		client = pandoraClientRepository.saveAndFlush(client);
-		return client;
-	}
+//	/*
+//	 * I think this can be rewriten using functional sintax.
+//	 */
+//	private PandoraClient removeProblemFromClient(PandoraClient client, RSAProblem problem) {
+//		Set<RSAProblem> active = new HashSet<>();
+//
+//		for (RSAProblem storedProblem : client.getProblems())
+//			if (!problem.getId().equals(storedProblem.getId()))
+//				active.add(problem);
+//
+//		client.setProblems(active);
+//		client = pandoraClientRepository.saveAndFlush(client);
+//		return client;
+//	}
 	
 
 	@Override
