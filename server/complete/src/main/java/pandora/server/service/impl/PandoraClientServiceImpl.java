@@ -59,6 +59,7 @@ public class PandoraClientServiceImpl implements PandoraService {
 	public PandoraClientDTO save(PandoraClientDTO pandoraClientDTO) {
 		log.info("Saving cliento to db, client hostname: " + pandoraClientDTO.getHostname());
 		PandoraClient entity = mapService.map(pandoraClientDTO, PandoraClient.class);
+		entity.setLastSeen(new Date());
 		entity = pandoraClientRepository.saveAndFlush(entity);
 		return mapService.map(entity, PandoraClientDTO.class);
 	}

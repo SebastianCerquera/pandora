@@ -10,6 +10,10 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+
+import org.springframework.lang.NonNull;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -29,6 +33,8 @@ public class PandoraClient {
 	
 	private STATES state;
 	
+	@Column(nullable = false)
+	@Temporal(TemporalType.TIMESTAMP)
 	private Date lastSeen;
 
 	@ManyToMany
