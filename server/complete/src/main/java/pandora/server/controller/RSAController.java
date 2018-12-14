@@ -131,7 +131,7 @@ public class RSAController {
 		for (PandoraClient client : clients) {
 			Date date = client.getLastSeen();
 			Long elapsed = System.currentTimeMillis() - date.getTime();
-			if (Long.valueOf(properties.getClientTimeout()) > elapsed)
+			if (Long.valueOf(properties.getClientTimeout())*1000 > elapsed)
 				active.add(client);
 		}
 
