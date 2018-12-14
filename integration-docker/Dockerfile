@@ -5,6 +5,9 @@ USER root
 
 RUN mkdir /opt/integration
 
+COPY client-down.sh /opt/integration/client-down.sh
+RUN chmod +x /opt/integration/client-down.sh
+
 COPY simple-test.sh /opt/integration/simple-test.sh
 RUN chmod +x /opt/integration/simple-test.sh
 

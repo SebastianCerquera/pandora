@@ -12,6 +12,7 @@ if [ "$1" == "test" ]; then
     ## Lo hago para que el grupo de sudo se cargue a la sesion
     su -c "whoami" ${USER}
     su -c "bash /opt/integration/simple-test.sh client-jenkins" ${USER}
+    su -c "bash /opt/integration/client-down.sh client-jenkins" ${USER}
 else
     exec "$@"
 fi
