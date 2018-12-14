@@ -191,7 +191,7 @@ public class RSAController {
 
 		HttpStatus status = HttpStatus.ACCEPTED;
 		if (synced.isEmpty()) {
-			List<PandoraClient> clients = repositoryClient.findAll();
+			List<PandoraClient> clients = getActiveClients();
 			for (PandoraClient client : clients)
 				removeProblemFromClient(client, problem.get());
 
