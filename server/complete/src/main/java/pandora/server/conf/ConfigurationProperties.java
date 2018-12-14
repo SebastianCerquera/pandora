@@ -26,6 +26,9 @@ public class ConfigurationProperties {
 	@Value("${rsagen}")
 	String rsagen;	
 
+	@Value("${clientTimeout}")
+	String clientTimeout;	
+	
 	@Bean
 	public CommandLineRunner setup(RSAProblemRepository repository) {
 		return (args) -> {

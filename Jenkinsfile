@@ -38,7 +38,7 @@ node('docker-agent'){
              sh '/usr/bin/docker run -d --name metadata-dummy -t pandora/metadata-dummy:0.0.1 metadata;'
 
              echo "Deploying Server";
-             sh '/usr/bin/docker run -d --name server-jenkins -e RSAGEN=/opt/rsagen.sh -t pandora/server:stable server;'
+             sh '/usr/bin/docker run -d --name server-jenkins -e RSAGEN=/opt/rsagen.sh -e CLIENT_TIMEOUT=60 -t pandora/server:stable server;'
              sh 'sleep 60'
 
              echo "Deploying Client 1";
