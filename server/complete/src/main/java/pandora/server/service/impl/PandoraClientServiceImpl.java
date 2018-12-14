@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import pandora.server.conf.ConfigurationProperties;
 import pandora.server.dto.PandoraClientDTO;
 import pandora.server.dto.RSAProblemDTO;
 import pandora.server.model.PandoraClient;
@@ -32,6 +33,10 @@ public class PandoraClientServiceImpl implements PandoraService {
 
 	private static final Logger log = LoggerFactory.getLogger(PandoraClientServiceImpl.class);
 
+
+	@Autowired
+	private ConfigurationProperties properties;
+	
 	@Autowired
 	ModelMapService mapService;
 
@@ -44,10 +49,24 @@ public class PandoraClientServiceImpl implements PandoraService {
 	@Autowired
 	RSAProblemRepository repositoryProblem;
 
+	public List<PandoraClient> getActiveClients() {
+		ArrayList<PandoraClient> active = new ArrayList<>();
+
+		List<PandoraClient> clients = pandoraClientRepository.findAll();
+		for (PandoraClient client : clients) {
+			Date date = client.getLastSeen();
+			Long elapsed = System.currentTimeMillis() - date.getTime();
+			if (Long.valueOf(properties.getClientTimeout())*1000 > elapsed)
+				active.add(client);
+		}
+
+		return active;
+	}
+	
 	@Override
 	public List<PandoraClientDTO> findAll() {
 		log.info("Retrieving registered clients from db.");
-		return mapService.mapList(pandoraClientRepository.findAll(), PandoraClientDTO.class);
+		return mapService.mapList(getActiveClients(), PandoraClientDTO.class);
 	}
 
 	@Override

@@ -38,6 +38,8 @@ import pandora.server.model.RSAProblem.STATES;
 import pandora.server.repository.PandoraClientRepository;
 import pandora.server.repository.RSAPayloadRepository;
 import pandora.server.repository.RSAProblemRepository;
+import pandora.server.service.PandoraService;
+import pandora.server.service.impl.PandoraClientServiceImpl;
 
 @RestController
 public class RSAController {
@@ -56,6 +58,9 @@ public class RSAController {
 	@Autowired
 	RSAPayloadRepository repositoryPayload;
 
+	@Autowired
+	PandoraClientServiceImpl pandoraService;
+	
 	/*
 	 * TODO to be consistent this shuould produce a json file.
 	 */
@@ -124,20 +129,6 @@ public class RSAController {
 		repositoryProblem.save(entity.get());
 	}
 
-	private List<PandoraClient> getActiveClients() {
-		ArrayList<PandoraClient> active = new ArrayList<>();
-
-		List<PandoraClient> clients = repositoryClient.findAll();
-		for (PandoraClient client : clients) {
-			Date date = client.getLastSeen();
-			Long elapsed = System.currentTimeMillis() - date.getTime();
-			if (Long.valueOf(properties.getClientTimeout())*1000 > elapsed)
-				active.add(client);
-		}
-
-		return active;
-	}
-
 	// Este metodo contiene logica repetica con ClientController
 	private List<PandoraClient> checkClientsSynced(Long id, List<PandoraClient> clients) {
 		ArrayList<PandoraClient> pending = new ArrayList<>();
@@ -189,7 +180,7 @@ public class RSAController {
 		if (problem == Optional.<RSAProblem>empty())
 			throw new IllegalStateException("There is no problem with the provided ID");
 
-		List<PandoraClient> active = getActiveClients();
+		List<PandoraClient> active = pandoraService.getActiveClients();
 		List<PandoraClient> pending = checkClientsSynced(id, active);
 
 		HttpStatus status = HttpStatus.ACCEPTED;
