@@ -49,10 +49,9 @@ public class RSAController {
 
 	@Autowired
 	RSAProblemRepository repositoryProblem;
-	
+
 	@Autowired
 	PandoraClientRepository repositoryClient;
-	
 
 	@Autowired
 	RSAPayloadRepository repositoryPayload;
@@ -125,21 +124,20 @@ public class RSAController {
 		repositoryProblem.save(entity.get());
 	}
 
-	private List<PandoraClient> getActiveClients(){
+	private List<PandoraClient> getActiveClients() {
 		ArrayList<PandoraClient> active = new ArrayList<>();
 
 		List<PandoraClient> clients = repositoryClient.findAll();
-		for(PandoraClient client: clients) {
+		for (PandoraClient client : clients) {
 			Date date = client.getLastSeen();
 			Long elapsed = System.currentTimeMillis() - date.getTime();
-			if(properties.getClientTimeout() > elapsed)
+			if (Long.valueOf(properties.getClientTimeout()) > elapsed)
 				active.add(client);
 		}
-			
+
 		return active;
 	}
-	
-	
+
 	// Este metodo contiene logica repetica con ClientController
 	private List<PandoraClient> checkClientsSynced(Long id) {
 		ArrayList<PandoraClient> pending = new ArrayList<>();
@@ -157,7 +155,6 @@ public class RSAController {
 		return pending;
 	}
 
-	
 	/*
 	 * I think this can be rewriten using functional sintax.
 	 */
@@ -172,17 +169,18 @@ public class RSAController {
 		client = repositoryClient.saveAndFlush(client);
 		return client;
 	}
-	
-	
+
 	/*
-	 * The problem is going to be deleted even if nobody calls this service, the PandoraClientServiceImpl.update will remove the problem when the last
-	 * client updates its state.
+	 * The problem is going to be deleted even if nobody calls this service, the
+	 * PandoraClientServiceImpl.update will remove the problem when the last client
+	 * updates its state.
 	 */
-	
+
 	/*
-	 * it is missing to set an apropiate code when the problems doesn't exists, right now it is
-	 * sending a 500 code error, it is hard to distinguish in between a crash and the normal flow.
-	 */	
+	 * it is missing to set an apropiate code when the problems doesn't exists,
+	 * right now it is sending a 500 code error, it is hard to distinguish in
+	 * between a crash and the normal flow.
+	 */
 	@DeleteMapping(value = "/v1/problems/{id}", produces = { "application/json" })
 	public ResponseEntity<?> delete(@PathVariable("id") Long id) {
 		Optional<RSAProblem> problem = repositoryProblem.findById(id);
@@ -196,7 +194,7 @@ public class RSAController {
 			List<PandoraClient> clients = repositoryClient.findAll();
 			for (PandoraClient client : clients)
 				removeProblemFromClient(client, problem.get());
-			
+
 			status = HttpStatus.OK;
 			repositoryProblem.delete(problem.get());
 		}
