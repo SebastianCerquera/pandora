@@ -35,17 +35,17 @@ import pandora.client.utils.RegisterHelperServer;
 
 @Component
 public class ScheduledTasks {
-	
+
 	@Autowired
 	RestTemplate template;
 
 	@Autowired
 	private ConfigurationProperties instanceProperties;
-	
+
 	@Autowired
 	RegisterHelperServer registerHelper;
 
-	private Map<String, Boolean> problems = new ConcurrentHashMap<>();
+	private Map<String, RSAProblem.STATES> problems = new ConcurrentHashMap<>();
 
 	private static final Logger log = LoggerFactory.getLogger(ScheduledTasks.class);
 
@@ -130,8 +130,10 @@ public class ScheduledTasks {
 	private void startProblems() {
 		log.info("Downloading problems from: " + instanceProperties.getServerEndpoint());
 		String[] problems = getProblems(instanceProperties.getServerEndpoint() + "/v1/problems");
-		if (problems == null)
+		if (problems == null) {
+			updateState();
 			return;
+		}
 
 		for (String id : problems) {
 			String raw = downloadProblems(instanceProperties.getServerEndpoint() + "/v1/problems/" + id);
@@ -139,12 +141,14 @@ public class ScheduledTasks {
 
 			if (this.problems.get(id) == null) {
 				if (problem.getState() == RSAProblem.STATES.COMPLETED) {
-					this.problems.put(id, true);
-					startProblem(id, problem.getModulus(), Long.valueOf(problem.getSecret()), Long.valueOf(problem.getDelay()));
-				}else {
+					startProblem(id, problem.getModulus(), Long.valueOf(problem.getSecret()),
+							Long.valueOf(problem.getDelay()));
+				} else {
+					updateState();
 					log.error("The problem with code: " + id + "is not ready yet");
 				}
 			} else {
+				updateState();
 				log.error("The problem with code: " + id + "has already being used");
 			}
 
@@ -182,34 +186,37 @@ public class ScheduledTasks {
 			return;
 		}
 	}
-	
+
 	private void updateState() {
 		String target = instanceProperties.getServerEndpoint() + "/v1/clients/";
-		
+
 		String hostname = registerHelper.getHostname(instanceProperties.getAmazonMetadata());
-		
+
 		ResponseEntity<PandoraClient> entity = template.getForEntity(target + hostname, PandoraClient.class);
 		PandoraClient pandoraClient = entity.getBody();
-		
+
 		ArrayList<RSAProblem> problems = new ArrayList<>();
-		for(String id : this.problems.keySet()) {
+		for (String id : this.problems.keySet()) {
+			RSAProblem.STATES state = this.problems.get(id);
+			
+			if (state == RSAProblem.STATES.COMPLETED)
+				continue;
+			
 			RSAProblem problem = new RSAProblem();
 			problem.setId(Long.valueOf(id));
 			problems.add(problem);
 		}
-			
+
 		pandoraClient.setProblems(problems);
-		
-		
+
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
-		
+
 		HttpEntity<PandoraClient> httpEntity = new HttpEntity<PandoraClient>(pandoraClient, headers);
 		template.put(target, httpEntity);
-		
+
 		log.info("New state was sent to the server: " + target);
 	}
-	
 
 	private void startProblem(String id, String modulus, Long solution, Long delay) {
 		Thread newProblem = new Thread() {
@@ -219,13 +226,18 @@ public class ScheduledTasks {
 							instanceProperties.getTargetFolder() + "/" + id + "/safe.tar.encrypted", solution);
 					log.info("A new problem has started, id code: " + id);
 					log.info("This is the modulus for the problem with id: " + id + " " + modulus);
+
+					ScheduledTasks.this.problems.put(id, RSAProblem.STATES.IN_PROGESS);
 					
 					updateState();
-					
+
 					Thread.sleep(delay * 1000);
 
 					decryptPayload(instanceProperties.getTargetFolder() + "/" + id + "/safe.tar.encrypted",
 							instanceProperties.getTargetFolder() + "/" + id + "/safe.tar", solution);
+					
+					ScheduledTasks.this.problems.put(id, RSAProblem.STATES.COMPLETED);
+					
 					log.info("The problem has completed the delay");
 					log.info("This was the solution for problem with code id " + id + ": " + solution);
 				} catch (InterruptedException v) {

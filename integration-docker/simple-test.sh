@@ -90,10 +90,10 @@ fi
 while [ "x$RESULT_CODE" ==  "x202" ]; do
     RESULT_CODE=$(curl -D - -XDELETE pandora:8080/v1/problems/$ID 2>/dev/null | perl -ne '/HTTP\/1\.\d+\s*(\d+)/ && print $1')
     echo "Deleting problem, waiting for clients to sync."
-    sleep 60
+    sleep 10
 done
  
-if [ "x$RESULT_CODE" ==	 "x500" ]; then
+if [ "x$RESULT_CODE" ==	 "x200" ]; then
     echo "The problem: $ID was succesfully deleted"
     curl pandora:8080/v1/problems
 fi

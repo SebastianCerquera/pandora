@@ -77,7 +77,7 @@ public class PandoraClientServiceImpl implements PandoraService {
 
 		return pending;
 	}
-	
+
 //	/*
 //	 * I think this can be rewriten using functional sintax.
 //	 */
@@ -92,7 +92,6 @@ public class PandoraClientServiceImpl implements PandoraService {
 //		client = pandoraClientRepository.saveAndFlush(client);
 //		return client;
 //	}
-	
 
 	@Override
 	public PandoraClientDTO update(PandoraClientDTO pandoraClientDTO) {
@@ -104,20 +103,28 @@ public class PandoraClientServiceImpl implements PandoraService {
 		for (RSAProblemDTO problemDTO : pandoraClientDTO.getProblems())
 			problems.add(mapService.map(problemDTO, RSAProblem.class));
 
+//		for (RSAProblemDTO problemDTO : pandoraClientDTO.getProblems()) {
+//			RSAProblem problem = mapService.map(problemDTO, RSAProblem.class);
+//			if (!repositoryProblem.findById(problem.getId()).isPresent())
+//				log.info("El problema con ID: " + problem.getId() + " ya se elimino del servidor");
+//			else
+//				problems.add(problem);
+//		}
+
 		client.setProblems(problems);
 		client.setState(PandoraClient.STATES.HEALTHY);
 		client.setLastSeen(new Date());
 
 		client = pandoraClientRepository.saveAndFlush(client);
-		
-		
+
 		log.info("Cliento state succesfully updated, client hostname: " + pandoraClientDTO.getHostname());
 
 		/*
-		 * Sin importar cuantos clientes alla cuando el primero actualiza el estado va a borrar el problema.
+		 * Sin importar cuantos clientes alla cuando el primero actualiza el estado va a
+		 * borrar el problema.
 		 * 
-		 * El inconveniente se debe a que cuando el primer cliente actualiza el estado la lista pending
-		 * solo lo contiene a el.
+		 * El inconveniente se debe a que cuando el primer cliente actualiza el estado
+		 * la lista pending solo lo contiene a el.
 		 * 
 		 */
 //		for (RSAProblem problem : problems) {
