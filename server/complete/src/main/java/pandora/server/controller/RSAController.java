@@ -139,10 +139,9 @@ public class RSAController {
 	}
 
 	// Este metodo contiene logica repetica con ClientController
-	private List<PandoraClient> checkClientsSynced(Long id) {
+	private List<PandoraClient> checkClientsSynced(Long id, List<PandoraClient> clients) {
 		ArrayList<PandoraClient> pending = new ArrayList<>();
 
-		List<PandoraClient> clients = getActiveClients();
 		for (PandoraClient client : clients) {
 			Boolean synced = false;
 			for (RSAProblem problem : client.getProblems())
@@ -181,18 +180,21 @@ public class RSAController {
 	 * right now it is sending a 500 code error, it is hard to distinguish in
 	 * between a crash and the normal flow.
 	 */
+	/*
+	 * What if a client that went idle stills referencing the problem?
+	 */
 	@DeleteMapping(value = "/v1/problems/{id}", produces = { "application/json" })
 	public ResponseEntity<?> delete(@PathVariable("id") Long id) {
 		Optional<RSAProblem> problem = repositoryProblem.findById(id);
 		if (problem == Optional.<RSAProblem>empty())
 			throw new IllegalStateException("There is no problem with the provided ID");
 
-		List<PandoraClient> synced = checkClientsSynced(id);
+		List<PandoraClient> active = getActiveClients();
+		List<PandoraClient> pending = checkClientsSynced(id, active);
 
 		HttpStatus status = HttpStatus.ACCEPTED;
-		if (synced.isEmpty()) {
-			List<PandoraClient> clients = repositoryClient.findAll();
-			for (PandoraClient client : clients)
+		if (pending.isEmpty()) {
+			for (PandoraClient client : active)
 				removeProblemFromClient(client, problem.get());
 
 			status = HttpStatus.OK;
