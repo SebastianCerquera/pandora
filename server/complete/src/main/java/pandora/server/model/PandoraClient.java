@@ -1,6 +1,7 @@
 package pandora.server.model;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.Set;
 
 import javax.persistence.Column;
@@ -27,6 +28,8 @@ public class PandoraClient {
 	private String hostname;
 	
 	private STATES state;
+	
+	private Date lastSeen;
 
 	@ManyToMany
 	@JsonIgnore
@@ -37,6 +40,7 @@ public class PandoraClient {
 	public PandoraClient(String hostname) {
 		this.hostname = hostname;
 		this.state = STATES.HEALTHY;
+		this.lastSeen = new Date();
 	}
 
 	@Override

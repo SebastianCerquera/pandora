@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -104,6 +105,7 @@ public class PandoraClientServiceImpl implements PandoraService {
 
 		client.setProblems(problems);
 		client.setState(PandoraClient.STATES.HEALTHY);
+		client.setLastSeen(new Date());
 
 		client = pandoraClientRepository.saveAndFlush(client);
 		

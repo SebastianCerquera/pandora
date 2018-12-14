@@ -125,11 +125,26 @@ public class RSAController {
 		repositoryProblem.save(entity.get());
 	}
 
+	private List<PandoraClient> getActiveClients(){
+		ArrayList<PandoraClient> active = new ArrayList<>();
+
+		List<PandoraClient> clients = repositoryClient.findAll();
+		for(PandoraClient client: clients) {
+			Date date = client.getLastSeen();
+			Long elapsed = System.currentTimeMillis() - date.getTime();
+			if(properties,getClientTimeout() > elapsed)
+				active.add(client);
+		}
+			
+		return active;
+	}
+	
+	
 	// Este metodo contiene logica repetica con ClientController
 	private List<PandoraClient> checkClientsSynced(Long id) {
 		ArrayList<PandoraClient> pending = new ArrayList<>();
 
-		List<PandoraClient> clients = repositoryClient.findAll();
+		List<PandoraClient> clients = getActiveClients();
 		for (PandoraClient client : clients) {
 			Boolean synced = false;
 			for (RSAProblem problem : client.getProblems())
