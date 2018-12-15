@@ -135,6 +135,10 @@ public class RSAController {
 
 		for (PandoraClient client : clients) {
 			Boolean synced = false;
+                        /*
+                         * I checked the method PandoraClientServiceImpl.getActiveClients and the problems aren't
+                         * retrieved from thre DB, this makes me think that it is doing some sort of lazy loading.
+                         */
 			for (RSAProblem problem : client.getProblems())
 				if (problem.getId().equals(id))
 					synced = true;
