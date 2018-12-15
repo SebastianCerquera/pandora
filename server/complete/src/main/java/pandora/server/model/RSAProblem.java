@@ -69,7 +69,7 @@ public class RSAProblem implements Serializable {
 	}
 	
 	public static enum STATES {
-		CREATED, IN_PROGESS, COMPLETED
+		CREATED, IN_PROGESS, READY, COMPLETED
 	}
 	
 }

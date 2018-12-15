@@ -63,7 +63,7 @@ done
 echo "This one is yours: $ID"
 curl pandora:8080/v1/problems
 
-COMPLETED=$(echo $RAW | perl -ne 's/"state":"CREATED"/"state":"COMPLETED"/g; print $_')
+COMPLETED=$(echo $RAW | perl -ne 's/"state":"CREATED"/"state":"READY"/g; print $_')
 curl -XPUT -H 'content-type: application/json' pandora:8080/v1/problems/$ID -d $COMPLETED
 
 curl pandora:8080/v1/problems/$ID

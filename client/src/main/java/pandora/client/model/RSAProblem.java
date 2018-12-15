@@ -102,7 +102,7 @@ public class RSAProblem {
 	}
 
 	public static enum STATES {
-		CREATED, IN_PROGESS, COMPLETED
+		CREATED, IN_PROGESS, READY, COMPLETED
 	}
 
 }

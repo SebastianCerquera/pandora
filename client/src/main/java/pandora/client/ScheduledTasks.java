@@ -140,7 +140,7 @@ public class ScheduledTasks {
 			RSAProblem problem = new RSAProblem(raw);
 
 			if (this.problems.get(id) == null) {
-				if (problem.getState() == RSAProblem.STATES.COMPLETED) {
+				if (problem.getState() == RSAProblem.STATES.READY) {
 					startProblem(id, problem.getModulus(), Long.valueOf(problem.getSecret()),
 							Long.valueOf(problem.getDelay()));
 				} else {
