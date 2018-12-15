@@ -227,16 +227,20 @@ public class ScheduledTasks {
 					log.info("A new problem has started, id code: " + id);
 					log.info("This is the modulus for the problem with id: " + id + " " + modulus);
 
-					ScheduledTasks.this.problems.put(id, RSAProblem.STATES.IN_PROGESS);
-					
+                                        ScheduledTasks.this.problems.put(id, RSAProblem.STATES.READY);
+                                        
 					updateState();
+
+                                        ScheduledTasks.this.problems.put(id, RSAProblem.STATES.COMPLETED);
 
 					Thread.sleep(delay * 1000);
 
 					decryptPayload(instanceProperties.getTargetFolder() + "/" + id + "/safe.tar.encrypted",
 							instanceProperties.getTargetFolder() + "/" + id + "/safe.tar", solution);
-					
-					ScheduledTasks.this.problems.put(id, RSAProblem.STATES.COMPLETED);
+
+                                        /*
+                                         * It is missing to update the problem using the API, the problem state is still READY on the server.
+                                         */
 					
 					log.info("The problem has completed the delay");
 					log.info("This was the solution for problem with code id " + id + ": " + solution);
