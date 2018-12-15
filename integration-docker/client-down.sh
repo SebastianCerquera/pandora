@@ -43,3 +43,5 @@ if [ -z "$CLIENTS_COUNT" -o  $CLIENTS_COUNT -ne  1 ]; then
 else
     echo "SUCCESS the client was properly marked as down"
 fi
+
+docker stop "$CLIENT_DOCKER-2"
