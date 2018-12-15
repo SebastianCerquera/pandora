@@ -33,6 +33,8 @@ import pandora.client.utils.ConfigurationProperties;
 import pandora.client.utils.FileUtils;
 import pandora.client.utils.RegisterHelperServer;
 
+import org.springframework.web.client.HttpServerErrorException;
+
 @Component
 public class ScheduledTasks {
 
@@ -192,7 +194,27 @@ public class ScheduledTasks {
 
 		String hostname = registerHelper.getHostname(instanceProperties.getAmazonMetadata());
 
-		ResponseEntity<PandoraClient> entity = template.getForEntity(target + hostname, PandoraClient.class);
+                ResponseEntity<PandoraClient> entity = null;                                   
+                try {                                                                          
+                        entity = template.getForEntity(target + hostname, PandoraClient.class);
+                } catch (HttpServerErrorException e) {
+                    /*
+                        A connection lost does not imply that the server went down and the client needs to register again.
+
+                      
+                        try {                                                                  
+                                registerHelper.register();                                     
+                        } catch (IOException e1) {                                             
+                                // TODO Auto-generated catch block                             
+                                e1.printStackTrace();                                          
+                        }                                                                      
+                        entity = template.getForEntity(target + hostname, PandoraClient.class);
+                    */
+                    log.error("The connectivity to the server was lost");
+                    return;
+                }
+
+
 		PandoraClient pandoraClient = entity.getBody();
 
 		ArrayList<RSAProblem> problems = new ArrayList<>();
