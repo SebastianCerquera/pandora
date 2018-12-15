@@ -40,4 +40,6 @@ CLIENTS_COUNT=$(echo $CLIENTS | jq length )
 if [ -z "$CLIENTS_COUNT" -o  $CLIENTS_COUNT -ne  1 ]; then
     echo "Something went wrong, the client was not marked as down"
     exit 100
+else
+    echo "SUCCESS the client was properly marked as down"
 fi
