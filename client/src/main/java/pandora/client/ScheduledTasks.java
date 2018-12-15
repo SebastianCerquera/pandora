@@ -136,10 +136,10 @@ public class ScheduledTasks {
 		}
 
 		for (String id : problems) {
-			String raw = downloadProblems(instanceProperties.getServerEndpoint() + "/v1/problems/" + id);
-			RSAProblem problem = new RSAProblem(raw);
-
 			if (this.problems.get(id) == null) {
+                 		String raw = downloadProblems(instanceProperties.getServerEndpoint() + "/v1/problems/" + id);
+                 		RSAProblem problem = new RSAProblem(raw);
+                            
 				if (problem.getState() == RSAProblem.STATES.READY) {
 					startProblem(id, problem.getModulus(), Long.valueOf(problem.getSecret()),
 							Long.valueOf(problem.getDelay()));
