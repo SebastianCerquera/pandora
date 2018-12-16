@@ -9,9 +9,9 @@ BASE=$(pwd)
 
 docker run -d --name server-proxy --link server-jenkins:pandora ssig33/simple-reverse-proxy pandora:8080
 
-docker run -d --name client-jenkins-3 -e JOB_DELAY=60 -e PROFILE=default -e SERVER_ENDPOINT=http://server-proxy:80 -e TARGET_FOLDER=/tmp/runs -e AMAZON_METADATA=http://dummy:5200/public-hostname --link server-proxy:pandora --link metadata-dummy:dummy -t pandora/client:stable client
+docker run -d --name client-jenkins-3 -e JOB_DELAY=60 -e PROFILE=default -e SERVER_ENDPOINT=http://pandora:80 -e TARGET_FOLDER=/tmp/runs -e AMAZON_METADATA=http://dummy:5200/public-hostname --link server-proxy:pandora --link metadata-dummy:dummy -t pandora/client:stable client
 
-sleep 60
+sleep 120
 
 ###
 # Checks that the client properly registered.
@@ -32,7 +32,7 @@ echo "The client is registered, its id is: $CLIENT_ID_1"
 #  Turns down the proxy, checks the client was marked as down.
 ###
 
-sudo docker stop server-proxy
+docker stop server-proxy
 
 sleep 120
 
@@ -52,7 +52,7 @@ fi
 ###
 
 
-sudo docker start server-proxy
+docker start server-proxy
 
 sleep 120
 
@@ -69,4 +69,4 @@ fi
 
 docker stop server-proxy
 
-docker  client-jenkins-3
+docker stop client-jenkins-3
