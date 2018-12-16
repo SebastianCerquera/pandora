@@ -65,3 +65,8 @@ if [ -z "$CLIENTS_COUNT" -o  $CLIENTS_COUNT -ne  1 ]; then
 else
     echo "SUCCESS the client was marked as active."
 fi
+
+
+docker stop server-proxy
+
+docker  client-jenkins-3
