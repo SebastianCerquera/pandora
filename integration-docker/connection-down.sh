@@ -68,5 +68,7 @@ fi
 
 
 docker stop server-proxy
+docker rm server-proxy
 
 docker stop client-jenkins-3
+docker rm client-jenkins-3
