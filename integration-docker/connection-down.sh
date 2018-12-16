@@ -9,7 +9,7 @@ BASE=$(pwd)
 
 docker run -d --name server-proxy --link server-jenkins:pandora ssig33/simple-reverse-proxy pandora:8080
 
-docker run -d --name client-jenkins-3 -e JOB_DELAY=60 -e PROFILE=default -e SERVER_ENDPOINT=http://server-proxy:80 -e TARGET_FOLDER=/tmp/runs -e AMAZON_METADATA=http://dummy:5200/public-hostname --link server-jenkins:pandora --link metadata-dummy:dummy -t pandora/client:stable client
+docker run -d --name client-jenkins-3 -e JOB_DELAY=60 -e PROFILE=default -e SERVER_ENDPOINT=http://server-proxy:80 -e TARGET_FOLDER=/tmp/runs -e AMAZON_METADATA=http://dummy:5200/public-hostname --link server-proxy:pandora --link metadata-dummy:dummy -t pandora/client:stable client
 
 sleep 60
 
