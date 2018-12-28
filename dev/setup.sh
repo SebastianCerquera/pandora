@@ -28,6 +28,7 @@ apt-get install -y  \
     apt-transport-https \
     ca-certificates \
     curl \
+    dstat \
     software-properties-common
  
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
