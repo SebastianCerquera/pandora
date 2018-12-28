@@ -13,7 +13,7 @@ COUNTER=0
 def metadata():
     global COUNTER
     COUNTER=COUNTER+1
-    if hostname != "":
+    if hostname == "":
         return 'ec2-XX-XX-XX-XX.us-east-' + str(COUNTER) + '.compute.amazonaws.com'
     else:
         return hostname
