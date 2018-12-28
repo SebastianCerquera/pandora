@@ -9,7 +9,7 @@ node('docker-agent'){
      	checkout([ 
              $class: 'GitSCM',
              branches: [[
-                 name: 'development'
+                 name: 'master'
              ]],
              doGenerateSubmoduleConfigurations: false,
              submoduleCfg: [],
@@ -68,6 +68,10 @@ node('docker-agent'){
              echo "Destroying Dummy ";
 	     sh '/usr/bin/docker stop metadata-dummy;'
 	     sh '/usr/bin/docker rm metadata-dummy;'
+
+             echo "Push images";
+             sh 'bash ./server-docker/push.sh'
+	     sh 'bash ./client-docker/push.sh'
          };
          deleteDir();
      };
