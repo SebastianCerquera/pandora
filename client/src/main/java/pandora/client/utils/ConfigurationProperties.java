@@ -19,6 +19,23 @@ public class ConfigurationProperties {
 	@Value("${jobDelay}")
 	String jobDelay;
 	
+	@Value("${spring.profiles.active}")
+	String profile;
+	
+	/**
+	 * I tested against http://169.254.169.254/latest/meta-data/public-hostname
+	 */
+	@Value("${amazon.metadata}")
+	String amazonMetadata;
+	
+	public String getAmazonMetadata() {
+		return amazonMetadata;
+	}
+	
+	public String getProfile() {
+		return profile;
+	}
+	
 	public String getJobDelay() {
 		return jobDelay;
 	}

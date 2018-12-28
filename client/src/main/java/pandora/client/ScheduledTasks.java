@@ -8,6 +8,7 @@ import java.nio.charset.Charset;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -18,20 +19,35 @@ import javax.crypto.NoSuchPaddingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 
+import pandora.client.model.PandoraClient;
 import pandora.client.model.RSAProblem;
 import pandora.client.utils.AESUtils;
 import pandora.client.utils.ConfigurationProperties;
 import pandora.client.utils.FileUtils;
+import pandora.client.utils.RegisterHelperServer;
+
+import org.springframework.web.client.HttpServerErrorException;
 
 @Component
 public class ScheduledTasks {
 
 	@Autowired
+	RestTemplate template;
+
+	@Autowired
 	private ConfigurationProperties instanceProperties;
 
-	private Map<String, Boolean> problems = new ConcurrentHashMap<>();
+	@Autowired
+	RegisterHelperServer registerHelper;
+
+	private Map<String, RSAProblem.STATES> problems = new ConcurrentHashMap<>();
 
 	private static final Logger log = LoggerFactory.getLogger(ScheduledTasks.class);
 
@@ -116,21 +132,25 @@ public class ScheduledTasks {
 	private void startProblems() {
 		log.info("Downloading problems from: " + instanceProperties.getServerEndpoint());
 		String[] problems = getProblems(instanceProperties.getServerEndpoint() + "/v1/problems");
-		if (problems == null)
+		if (problems == null) {
+			updateState();
 			return;
+		}
 
 		for (String id : problems) {
-			String raw = downloadProblems(instanceProperties.getServerEndpoint() + "/v1/problems/" + id);
-			RSAProblem problem = new RSAProblem(raw);
-
 			if (this.problems.get(id) == null) {
-				if (problem.getState() == RSAProblem.STATES.COMPLETED) {
-					this.problems.put(id, true);
-					startProblem(id, problem.getModulus(), Long.valueOf(problem.getSecret()), Long.valueOf(problem.getDelay()));
-				}else {
+                 		String raw = downloadProblems(instanceProperties.getServerEndpoint() + "/v1/problems/" + id);
+                 		RSAProblem problem = new RSAProblem(raw);
+                            
+				if (problem.getState() == RSAProblem.STATES.READY) {
+					startProblem(id, problem.getModulus(), Long.valueOf(problem.getSecret()),
+							Long.valueOf(problem.getDelay()));
+				} else {
+					updateState();
 					log.error("The problem with code: " + id + "is not ready yet");
 				}
 			} else {
+				updateState();
 				log.error("The problem with code: " + id + "has already being used");
 			}
 
@@ -169,6 +189,57 @@ public class ScheduledTasks {
 		}
 	}
 
+	private void updateState() {
+		String target = instanceProperties.getServerEndpoint() + "/v1/clients/";
+
+		String hostname = registerHelper.getHostname(instanceProperties.getAmazonMetadata());
+
+                ResponseEntity<PandoraClient> entity = null;                                   
+                try {                                                                          
+                        entity = template.getForEntity(target + hostname, PandoraClient.class);
+                } catch (HttpServerErrorException e) {
+                    /*
+                        A connection lost does not imply that the server went down and the client needs to register again.
+
+                      
+                        try {                                                                  
+                                registerHelper.register();                                     
+                        } catch (IOException e1) {                                             
+                                // TODO Auto-generated catch block                             
+                                e1.printStackTrace();                                          
+                        }                                                                      
+                        entity = template.getForEntity(target + hostname, PandoraClient.class);
+                    */
+                    log.error("The connectivity to the server was lost");
+                    return;
+                }
+
+
+		PandoraClient pandoraClient = entity.getBody();
+
+		ArrayList<RSAProblem> problems = new ArrayList<>();
+		for (String id : this.problems.keySet()) {
+			RSAProblem.STATES state = this.problems.get(id);
+			
+			if (state == RSAProblem.STATES.COMPLETED)
+				continue;
+			
+			RSAProblem problem = new RSAProblem();
+			problem.setId(Long.valueOf(id));
+			problems.add(problem);
+		}
+
+		pandoraClient.setProblems(problems);
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+
+		HttpEntity<PandoraClient> httpEntity = new HttpEntity<PandoraClient>(pandoraClient, headers);
+		template.put(target, httpEntity);
+
+		log.info("New state was sent to the server: " + target);
+	}
+
 	private void startProblem(String id, String modulus, Long solution, Long delay) {
 		Thread newProblem = new Thread() {
 			public void run() {
@@ -178,10 +249,21 @@ public class ScheduledTasks {
 					log.info("A new problem has started, id code: " + id);
 					log.info("This is the modulus for the problem with id: " + id + " " + modulus);
 
+                                        ScheduledTasks.this.problems.put(id, RSAProblem.STATES.READY);
+                                        
+					updateState();
+
+                                        ScheduledTasks.this.problems.put(id, RSAProblem.STATES.COMPLETED);
+
 					Thread.sleep(delay * 1000);
 
 					decryptPayload(instanceProperties.getTargetFolder() + "/" + id + "/safe.tar.encrypted",
 							instanceProperties.getTargetFolder() + "/" + id + "/safe.tar", solution);
+
+                                        /*
+                                         * It is missing to update the problem using the API, the problem state is still READY on the server.
+                                         */
+					
 					log.info("The problem has completed the delay");
 					log.info("This was the solution for problem with code id " + id + ": " + solution);
 				} catch (InterruptedException v) {

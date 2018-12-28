@@ -1,6 +1,7 @@
 package pandora.server.model;
 
-import java.util.List;
+import java.io.Serializable;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -9,31 +10,25 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 
-@Entity
-public class RSAProblem {
+import lombok.Getter;
+import lombok.Setter;
 
+@Entity
+@Setter
+@Getter
+public class RSAProblem implements Serializable {
+
+
+	private static final long serialVersionUID = 1L;
+
+	/*
+	 * I needed to generate the getters an setter fotr this field otherwise it will fail.
+	 * RSAServiceImpl.class]: Instantiation of bean failed; nested exception is org.springframework.beans.BeanInstantiationException: Failed to instantiate [pandora.server.service.impl.RSAServiceImpl]: Constructor threw exception; nested exception is java.lang.Error: Unresolved compilation problem: 
+	 * The method getId() is undefined for the type RSAProblem
+	 */
 	@Id
     @GeneratedValue(strategy=GenerationType.AUTO)
 	private Long id;
-	
-	private String modulus;
-	
-	private String secret;
-	
-	private String delay;
-	
-	private STATES state;
-
-	@OneToMany(cascade=CascadeType.REMOVE)
-	private List<RSAPayload> images;
-	
-	protected RSAProblem() {}
-	
-	public RSAProblem(String modulus, String secret, String delay) {
-		this.modulus = modulus;
-		this.secret = secret;
-		this.delay = delay;
-	}
 	
 	public Long getId() {
 		return id;
@@ -43,44 +38,23 @@ public class RSAProblem {
 		this.id = id;
 	}
 
-	public String getModulus() {
-		return modulus;
-	}
+	private String modulus;
+	
+	private String secret;
+	
+	private String delay;
+	
+	private STATES state;
 
-	public void setModulus(String modulus) {
+	@OneToMany(cascade=CascadeType.REMOVE)
+	private Set<RSAPayload> images;
+	
+	protected RSAProblem() {}
+	
+	public RSAProblem(String modulus, String secret, String delay) {
 		this.modulus = modulus;
-	}
-
-	public String getSecret() {
-		return secret;
-	}
-
-	public void setSecret(String secret) {
 		this.secret = secret;
-	}
-
-	public String getDelay() {
-		return delay;
-	}
-
-	public void setDelay(String delay) {
 		this.delay = delay;
-	}
-	
-	public List<RSAPayload> getImages() {
-		return images;
-	}
-
-	public void setImages(List<RSAPayload> images) {
-		this.images = images;
-	}
-	
-	public STATES getState() {
-		return state;
-	}
-
-	public void setState(STATES state) {
-		this.state = state;
 	}
 
 	@Override
@@ -95,7 +69,7 @@ public class RSAProblem {
 	}
 	
 	public static enum STATES {
-		CREATED, IN_PROGESS, COMPLETED
+		CREATED, IN_PROGESS, READY, COMPLETED
 	}
 	
 }

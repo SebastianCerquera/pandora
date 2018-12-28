@@ -1,6 +1,4 @@
-package pandora.server;
-
-import org.springframework.web.bind.annotation.RestController;
+package pandora.server.controller;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -8,8 +6,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.kamranzafar.jtar.TarEntry;
 import org.kamranzafar.jtar.TarHeader;
@@ -17,23 +17,29 @@ import org.kamranzafar.jtar.TarOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.parsing.Problem;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import pandora.server.conf.ConfigurationProperties;
-import pandora.server.conf.RSAPayloadRepository;
-import pandora.server.conf.RSAProblemRepository;
+import pandora.server.model.PandoraClient;
 import pandora.server.model.RSAPayload;
 import pandora.server.model.RSAProblem;
 import pandora.server.model.RSAProblem.STATES;
+import pandora.server.repository.PandoraClientRepository;
+import pandora.server.repository.RSAPayloadRepository;
+import pandora.server.repository.RSAProblemRepository;
+import pandora.server.service.PandoraService;
+import pandora.server.service.impl.PandoraClientServiceImpl;
 
 @RestController
 public class RSAController {
@@ -47,13 +53,14 @@ public class RSAController {
 	RSAProblemRepository repositoryProblem;
 
 	@Autowired
+	PandoraClientRepository repositoryClient;
+
+	@Autowired
 	RSAPayloadRepository repositoryPayload;
 
-	@RequestMapping("/")
-	public String root() {
-		return "Greetings from Spring Boot!";
-	}
-
+	@Autowired
+	PandoraClientServiceImpl pandoraService;
+	
 	/*
 	 * TODO to be consistent this shuould produce a json file.
 	 */
@@ -122,12 +129,74 @@ public class RSAController {
 		repositoryProblem.save(entity.get());
 	}
 
+	// Este metodo contiene logica repetica con ClientController
+	private List<PandoraClient> checkClientsSynced(Long id, List<PandoraClient> clients) {
+		ArrayList<PandoraClient> pending = new ArrayList<>();
+
+		for (PandoraClient client : clients) {
+			Boolean synced = false;
+                        /*
+                         * I checked the method PandoraClientServiceImpl.getActiveClients and the problems aren't
+                         * retrieved from thre DB, this makes me think that it is doing some sort of lazy loading.
+                         */
+			for (RSAProblem problem : client.getProblems())
+				if (problem.getId().equals(id))
+					synced = true;
+			if (!synced)
+				pending.add(client);
+		}
+
+		return pending;
+	}
+
+	/*
+	 * I think this can be rewriten using functional sintax.
+	 */
+	private PandoraClient removeProblemFromClient(PandoraClient client, RSAProblem problem) {
+		Set<RSAProblem> active = new HashSet<>();
+
+		for (RSAProblem storedProblem : client.getProblems())
+			if (!problem.getId().equals(storedProblem.getId()))
+				active.add(problem);
+
+		client.setProblems(active);
+		client = repositoryClient.saveAndFlush(client);
+		return client;
+	}
+
+	/*
+	 * The problem is going to be deleted even if nobody calls this service, the
+	 * PandoraClientServiceImpl.update will remove the problem when the last client
+	 * updates its state.
+	 */
+
+	/*
+	 * it is missing to set an apropiate code when the problems doesn't exists,
+	 * right now it is sending a 500 code error, it is hard to distinguish in
+	 * between a crash and the normal flow.
+	 */
+	/*
+	 * What if a client that went idle stills referencing the problem?
+	 */
 	@DeleteMapping(value = "/v1/problems/{id}", produces = { "application/json" })
-	public void delete(@PathVariable("id") Long id) {
+	public ResponseEntity<?> delete(@PathVariable("id") Long id) {
 		Optional<RSAProblem> problem = repositoryProblem.findById(id);
 		if (problem == Optional.<RSAProblem>empty())
 			throw new IllegalStateException("There is no problem with the provided ID");
-		repositoryProblem.delete(problem.get());
+
+		List<PandoraClient> active = pandoraService.getActiveClients();
+		List<PandoraClient> pending = checkClientsSynced(id, active);
+
+		HttpStatus status = HttpStatus.ACCEPTED;
+		if (pending.isEmpty()) {
+			for (PandoraClient client : active)
+				removeProblemFromClient(client, problem.get());
+
+			status = HttpStatus.OK;
+			repositoryProblem.delete(problem.get());
+		}
+
+		return new ResponseEntity<>(status);
 	}
 
 	/*
@@ -140,7 +209,7 @@ public class RSAController {
 		if (problem == Optional.<RSAProblem>empty())
 			throw new IllegalStateException();
 
-		List<RSAPayload> images = problem.get().getImages();
+		Set<RSAPayload> images = problem.get().getImages();
 
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 

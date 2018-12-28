@@ -1,4 +1,4 @@
-package pandora.server;
+package pandora.server.controller;
 
 import java.io.BufferedReader;
 import java.io.IOException;
