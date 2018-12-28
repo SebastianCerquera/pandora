@@ -72,6 +72,7 @@ node('docker-agent'){
              echo "Push images";
              sh 'bash ./server-docker/push.sh'
 	     sh 'bash ./client-docker/push.sh'
+             sh 'bash ./integration-docker/metadata-dummy/push.sh'
          };
          deleteDir();
      };
