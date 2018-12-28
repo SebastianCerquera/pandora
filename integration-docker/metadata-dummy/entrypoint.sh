@@ -5,9 +5,9 @@ set -e
 HOSTNAME_FILE=/opt/hostname
 
 ARGS=""
-if [ -f "$HOSTNAME_FILE" ]; do
+if [ -f "$HOSTNAME_FILE" ]; then
     ARGS=$(cat $$HOSTNAME_FILE | perl -ne 'print $_ if($. == 1)')
-done
+fi
 
 if [ "$1" == "metadata" ]; then
     exec python /opt/amazon.py $ARGS
