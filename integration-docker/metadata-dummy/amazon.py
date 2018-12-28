@@ -15,7 +15,7 @@ def metadata():
     COUNTER=COUNTER+1
     if hostname != "":
         return 'ec2-XX-XX-XX-XX.us-east-' + str(COUNTER) + '.compute.amazonaws.com'
-    else
+    else:
         return hostname
 
 if __name__ == '__main__':
