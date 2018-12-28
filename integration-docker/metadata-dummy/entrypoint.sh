@@ -6,7 +6,7 @@ HOSTNAME_FILE=/opt/hostname
 
 ARGS=""
 if [ -f "$HOSTNAME_FILE" ]; then
-    ARGS=$(cat $$HOSTNAME_FILE | perl -ne 'print $_ if($. == 1)')
+    ARGS=$(cat $HOSTNAME_FILE | perl -ne 'print $_ if($. == 1)')
 fi
 
 if [ "$1" == "metadata" ]; then
