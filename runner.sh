@@ -1,7 +1,9 @@
-#! /bin/bash
+#!/bin/bash
 
 BASE=/opt/control/
 SRC=$BASE/runs
+
+cd $SRC
 
 DELAY=$(python -c 'a = 1800; print a')
 curl p.qanomads.com:48080/v1/problems
@@ -89,3 +91,4 @@ sudo mkfs.ext2 $BASE/FS
 sudo mount $BASE/FS $SRC
 sudo chmod 777 -R $SRC
 
+exit
