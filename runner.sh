@@ -1,17 +1,18 @@
 #!/bin/bash
 
+PORT=8080
 BASE=/opt/control/
 SRC=$BASE/runs
 
 cd $SRC
 
 DELAY=$(python -c 'a = 1800; print a')
-curl p.qanomads.com:48080/v1/problems
+curl p.qanomads.com:$PORT/v1/problems
  
-RAW=$(curl -XPOST p.qanomads.com:48080/v1/problems/$DELAY 2>/dev/null)
+RAW=$(curl -XPOST p.qanomads.com:$PORT/v1/problems/$DELAY 2>/dev/null)
 ID=$(echo "$RAW" | perl -ne '/\"id\":\s*(\d+)/ && print $1')
  
-KEY=$(curl p.qanomads.com:48080/v1/problems/$ID 2>/dev/null)
+KEY=$(curl p.qanomads.com:$PORT/v1/problems/$ID 2>/dev/null)
 perl -le '
 use bigint;
 
@@ -31,26 +32,26 @@ $KEY
 EOF
  
 for i in $(ls | grep jpg); do 
-    curl -XPOST -F "file=@$i" -F "fileName=$i"  p.qanomads.com:48080/v1/problems/$ID/images;
+    curl -XPOST -F "file=@$i" -F "fileName=$i"  p.qanomads.com:$PORT/v1/problems/$ID/images;
     echo $?
 done
  
 echo "This one is yours: $ID"
-curl p.qanomads.com:48080/v1/problems
+curl p.qanomads.com:$PORT/v1/problems
 
 COMPLETED=$(echo $RAW | perl -ne 's/"state":"CREATED"/"state":"READY"/g; print $_')
-curl -XPUT -H 'content-type: application/json' p.qanomads.com:48080/v1/problems/$ID -d $COMPLETED
+curl -XPUT -H 'content-type: application/json' p.qanomads.com:$PORT/v1/problems/$ID -d $COMPLETED
 
-curl p.qanomads.com:48080/v1/problems/$ID
+curl p.qanomads.com:$PORT/v1/problems/$ID
 
 ## it is just to create a blank line
 echo ""
 
 [ -d output ] || mkdir output
-curl p.qanomads.com:48080/v1/problems/$ID/images -o output/safe.tar 2>/dev/null
+curl p.qanomads.com:$PORT/v1/problems/$ID/images -o output/safe.tar 2>/dev/null
 
 ## The regular expression is duplicated below
-RESULT_CODE=$(curl -D - -XDELETE p.qanomads.com:48080/v1/problems/$ID 2>/dev/null | perl -ne '/HTTP\/1\.\d+\s*(\d+)/ && print $1')
+RESULT_CODE=$(curl -D - -XDELETE p.qanomads.com:$PORT/v1/problems/$ID 2>/dev/null | perl -ne '/HTTP\/1\.\d+\s*(\d+)/ && print $1')
 
 if [ "x$RESULT_CODE" ==  "x500" ]; then
     echo "Something went wrong, there shuld have been a problem"
@@ -63,14 +64,14 @@ fi
 
 ## There is a cocurrency error, if the runner keeps trying to delete the problem the clients might not sync properlt.
 while [ "x$RESULT_CODE" ==  "x202" ]; do
-    RESULT_CODE=$(curl -D - -XDELETE p.qanomads.com:48080/v1/problems/$ID 2>/dev/null | perl -ne '/HTTP\/1\.\d+\s*(\d+)/ && print $1')
+    RESULT_CODE=$(curl -D - -XDELETE p.qanomads.com:$PORT/v1/problems/$ID 2>/dev/null | perl -ne '/HTTP\/1\.\d+\s*(\d+)/ && print $1')
     echo "Deleting problem, waiting for clients to sync."
     sleep 60
 done
  
 if [ "x$RESULT_CODE" ==	 "x200" ]; then
     echo "The problem: $ID was succesfully deleted"
-    curl p.qanomads.com:48080/v1/problems
+    curl p.qanomads.com:$PORT/v1/problems
 fi
 
 
