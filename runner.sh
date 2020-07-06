@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PORT=8080
+PORT=80
 BASE=/opt/control/
 SRC=$BASE/runs
 
